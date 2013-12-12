@@ -1,0 +1,226 @@
+-------------- MODEL VERSION 2013-08-10 --------------------
+Model appears to provide better results than current production version of simulation 2
+
+tweaks to simulation 2,
+
+* spreading activation parameters changed
+were: prev -0.027, next -0.024 changed to prev -0.026, next -0.025
+
+* retrieval latency scale - 4 (was 5)
+param settings: g24(variable), t 0.2, m 0.41, u 1, t 50
+
+
+-------------- MODEL VERSION 2013-07-18_1 --------------------
+ACT-R version
+variable WM decay (d value in base level learning equation)
+
+
+-------------- MODEL VERSION 2013-08-18 --------------------
+*** production version??? ***
+Working ACT-R WM version
+variable WM threshold parameter
+retrieval probability & latency equations use activation of item vs. mean activation
+
+
+
+--------------- MODEL VERSION 2013-07-09 --------------------
+*** production version??? ***
+
+[x] adding in TMS data
+[x] fix model fit statistic
+[ ] use genetic algorithm to systematically estimate parameters
+
+
+--------------- MODEL VERSION 2013-07-06 --------------------
+Good (stable) working version - Now simulates RG, RNG, CS1, CS2, CST statistics & Digram difference scores well, modulated via theoretically appropriate parameters (primarily, response interval and task setting temperature.
+
+Next stage of developments aimed at 
+[x] fix memory leak - done for rng model 2013-07-06, xrng is horrendous
+[x] fix parameter studies (and add in CS1 and CST)
+[x] running Monte-Carlo simulations <- see monte_carlo.c
+  [x] do large number of Monte-Carlo runs and compare with table of random numbers drawn from random.org
+[x] standardising data (to Monto-Carlo randomness)
+[ ] adding in TMS data
+[ ] fix model fit statistic
+[ ] use genetic algorithm to systematically estimate parameters
+
+
+
+Actions up to week 27
+
+--------------- MODEL VERSION 2013-07-03
+
+Week 26 Priorities
+[x] - fixing RNG scores - done 2013-06-03 version
+  [x] probably RNG is close to monte-carlo pseudorandom sequence because schema selection weights are flat
+  [x] look at Jahanshahi & Karpiuk & Ginsburg papers again to look at seriation
+
+[ ] need to un-standardise RNG scores from Towse
+[ ] check for standardisation in Jahanshahi?
+  [ ] need to standardise Jahanshahi 1998 results for set size of 9
+  [ ] check Jahanshahi 2006 set size
+[x] Add tablulated DVs back into model
+[x] Fix RG statistic
+[x] Get supervisory & contention scheduling systems to mesh together properly
+  [x] simple fix for apply_set wrapping problem
+  [x] get monitoring to pick up on apply_set failing to excite an in-range response node
+    [x] ie monitoring has a sense of the passage of time
+//  [x]IMPORTANT! Timestamps on WM items need to correspond with when item was generated, not proposed into the RB
+
+[ ] fork model?? more complete fix for apply_set involving 30 response nodes and possibility of rule breaks 
+[ ] ACT-R implementation of working memory 
+
+
+
+[ ] check rng_global_fit_max in rng_analyse.c is being calculated correctly against the right reference (ie vs. subject_ctl_sd vs. subject_c6_sd)
+[ ] get model not to display z scores if there is no comparison data for the metric
+
+
+
+Actions from 2013-06-13
+
+Quite important, low priority
+[ ] working memory - implent new WM 'decay' mechanism G.D.A Brown -
+temporal ratio model of WM ACT-R items don't really decay from WM but
+just become inaccessible function in monitoring system that attempts
+to retrieve items from WM (success dependent on items residual
+activation) - more recently retrieved items are re-activated and activation follows exponential decay.
+ie. Working memory buffer will have 10 items in it (corresponding to response possibilities) which have differing levels of activation. activation values directly influence probability of retrieving item from WM. 
+ [ ] read G.D.A Brown article
+ [ ] read Anderson - ACT-R conception of working memory
+
+[ ] data sets 
+[ ] 2nd order DVs - 
+ |-[ ] change to 21 items list
+ |-[ ] line graph not bar graph
+[ ] New tab page for Jahanshahi/Towse analysis 
+
+[ ] follow up Rick on contacting Towse for raw data
+[ ] implement Jahanshahi & Towse data sets on separate tabs
+[ ] fix RG statistic (divide by 10?!)
+
+[ ] get Karpiuk & Ginsburg articles from BBK
+
+
+
+-- NEW ACTIONS (integrate lists in week 24) --
+[ ] new spreading activation parameter values
+[ ] check response nodes are being addressed correctly in spreading activation algorithm
+[ ] organise work done to-date by model componenet, being explicit about modelling decisions made and justification
+
+[x] import data from Jahanshahi (2000)
+  - [x] reprogram RNG analysis algorithms to include Jahanshahi metrics
+  - [x] update graphs to use new metrics
+  - [x] import data from Towse (1998)
+
+[ ] reconcile relative timescales of spreading activation & SS operation
+
+[x] implementation of per-position WM decay
+  - [ ] find better algorithm for stealing activation
+  - [x] find better algorithm for WM decay (gaussian distribution?)
+
+[x] change schema selection weights
+[ ] simplify subject conception of randomness (Jahanshahi based ruleset)
+
+
+
+2013-06-07
+[ ] implement 2013-05-13 version
+ - [x] Spreading activation
+ -  - [ ] Monitoring changes <- theoretical issues?
+ -  - [x] Response Nodes (incl calc_spreading_activation function)
+ -  -  - [x] proper activation/inhibition in oos_buffer_apply_activate_messages() in oos.c
+ -  - [x] Propose Response
+
+ - [x] Paced generation
+ -  - [x] PSEUDOCODE 'snap' responses based on graded activation in response buffer
+ -  - [x] implement graded activation in response buffer
+ -  - - [x] change such that propose response -> response buffer inhibits response node
+ -  - [x] simple rule in Generate Response (every n cycles)
+ -  - [x] add RESPONSE_PERIOD as a settable parameter
+ -  -  - [x] Basic Results tab
+ -  -  - [x] Parameter Studies tab
+
+ - [ ] Number based generation
+ -  - [x] sort out wrapping in apply set
+ -  - [ ] find fix for apply_set wrapping problem 
+ -  - [ ] new annotation arrow - apply set -> current set (representing clearing schema)
+
+ - [x] settings: get model with disabled supervisory system to count
+ - - [ ] 
+
+
+2013-06-04
+
+[x] write down current model (2013-05-01) ruleset in pseudocode format  +added:2013-05-13
+[x] explicitly specify proposed model ruleset in pseudocode +added:2013-05-13
+[ ] implement 2013-05-13 version
+ - [ ] Spreading activation
+ -  - [ ] Monitoring changes <- theoretical issues?
+ -  - [x] Response Nodes (incl calc_spreading_activation function)
+ -  -  - [x] proper activation/inhibition in oos_buffer_apply_activate_messages() in oos.c
+ -  - [x] Propose Response
+ - [ ] Paced generation
+ -  - [x] PSEUDOCODE 'snap' responses based on graded activation in response buffer
+ -  - [x] implement graded activation in response buffer
+ -  - - [x] change such that propose response -> response buffer inhibits response node
+ -  - [x] simple rule in Generate Response (every n cycles)
+ -  - [ ] add RESPONSE_PERIOD as a settable parameter
+ -  -  - [ ] Basic Results tab
+ -  -  - [ ] Parameter Studies tab
+ - [ ] Number based generation
+ -  - [x] sort out wrapping in apply set
+ -  - [ ] debug apply set sending CLEAR to current set - seems to happen too often
+ -  - [ ] new annotation arrow - apply set -> current set (representing clearing schema)
+
+
+2013-05-31 - implemented spreading activation
+
+
+2013-04-19 1021 - implementing changes to reduce number of repeat responses.
+
+Problem: 
+
+1) MONITORING, on detecting an insufficiently random
+response, fails to clear candidate response from response buffer.
+
+2) As a result, MONITORING continues to clear set from CURRENT_SET,
+even when new set has been proposed (ie. clearing any newly generated
+schema on the basis of the old candidate response)
+
+3a) APPLY_SET doesn't fire to excite new response node
+(RESPONSE_NODES),
+
+3b) PROPOSE_RESPONSE doesn't generate new response (from response
+node) in RESPONSE_BUFFER
+
+
+Proposed Fix:
+A) MONITORING needs to clear candidate response from buffer.
+   [x] implement new message in monitoring_output
+
+B) APPLY_SET needs to activate new response node Think the code is
+   already set up to do this if there is no item in response
+   buffer. Check with Rick?
+
+C) PROPOSE_RESPONSE needs to use new active response node to send a
+message to RESPONSE BUFFER. Think this is set up already. Check with
+Rick?
+
+D) Need more steps between response productions. 
+Task setting -> response in buffer = 3 cycles.
+Monitoring - 1 cycle
+
+ie. at least 7 cycles needed to allow time for inhibiting response and
+producing another one?
+
+
+2013-04-19 1049 - implemented fix (A) only: seems to have improved
+repeat responses significantly.
+
+2013-04-19 1050 - 
+enabling DEBUG output in rng_model.c [x] 
+changing number of subjects in oos.c [x]
+
+2013-04-19 1128 
+reverted changes made 1050
