@@ -13,7 +13,7 @@
 
 #define DEFAULT_LOGFILE "FIT_V1_j2006_c3.log"
 
-#define DATA_TO_FIT dataset_jahanshahi_2006.subject_c3_means
+#define DATA_TO_FIT dataset_jahanshahi_2006.subject_c3_means // interval = 1.5s (middle value)
 #define REFERENCE_SD dataset_towse_1998.subject_ctl_sd // monte-carlo SD values
 
 
@@ -57,10 +57,10 @@ static void ga_generate_seed_population()
     for (i = 0; i < POPULATION_SIZE; i++) {
         para_pop[i].temperature = random_uniform(1.0, 100.0);
         para_pop[i].monitoring_efficiency = random_uniform(0.1, 1.0);
-        // para_pop[i].wm_decay_rate = random_integer(60, 500);
-	para_pop[i].wm_threshold = random_uniform(-1, 1);
+        para_pop[i].wm_decay_rate = random_integer(05, 300);
+	// para_pop[i].wm_threshold = random_uniform(-1, 1);
         para_pop[i].wm_update_rate = random_uniform(0.1, 1.0);
-	para_pop[i].generation_period = random_integer(8, 24);
+	para_pop[i].generation_period = random_integer(4, 24);
     }
 }
 
@@ -84,7 +84,8 @@ static void ga_generate_next_generation()
         int n = random_integer(0, l[0]);
 	int p = random_integer(0, l[0]);
 
-        para_pop[i].wm_threshold = para_pop[m].wm_threshold;
+        // para_pop[i].wm_threshold = para_pop[m].wm_threshold;
+	para_pop[i].wm_decay_rate = para_pop[m].wm_decay_rate;
         para_pop[i].temperature = para_pop[m].temperature;
         para_pop[i].monitoring_efficiency = para_pop[n].monitoring_efficiency;
         para_pop[i].wm_update_rate = para_pop[n].wm_update_rate;
@@ -93,7 +94,8 @@ static void ga_generate_next_generation()
 
     for (i = l[1]; i < l[2]; i++) {
         // 25% mutatations from original good cases
-        para_pop[i].wm_threshold = clip(-1, 1, random_normal(para_pop[i-l[1]].wm_threshold, 0.1));
+        // para_pop[i].wm_threshold = clip(-1, 1, random_normal(para_pop[i-l[1]].wm_threshold, 0.1));
+      para_pop[i].wm_decay_rate = clip(-1, 1, random_normal(para_pop[i-l[1]].wm_decay_rate, 0.1));
         para_pop[i].temperature = clip(0, 100, random_normal(para_pop[i-l[1]].temperature, 10.0));
         para_pop[i].monitoring_efficiency = clip(0.1, 1.0, random_normal(para_pop[i-l[1]].monitoring_efficiency, 0.2));
         para_pop[i].wm_update_rate = clip(0.1, 1.0, random_normal(para_pop[i-l[1]].wm_update_rate, 0.2));
@@ -101,7 +103,8 @@ static void ga_generate_next_generation()
     }
 
     for (i = l[2]; i < POPULATION_SIZE; i++) {
-        para_pop[i].wm_threshold = random_uniform(-1, 1);
+      // para_pop[i].wm_threshold = random_uniform(-0.5, 0.5);
+        para_pop[i].wm_decay_rate = random_uniform(-0.5, 0.5);
         para_pop[i].temperature = random_uniform(0.01, 100.0);
         para_pop[i].monitoring_efficiency = random_uniform(0.1, 1.0);
         para_pop[i].wm_update_rate = random_uniform(0.1, 1.0);
@@ -140,15 +143,17 @@ static void ga_sort_by_fit()
                 para_fit[i] = para_fit[j];
                 para_fit[j] = f;
 
-		/*
+		
                 p.wm_decay_rate = para_pop[i].wm_decay_rate;
                 para_pop[i].wm_decay_rate = para_pop[j].wm_decay_rate;
                 para_pop[j].wm_decay_rate = p.wm_decay_rate;
-		*/
+		
 
+		/*
 		p.wm_threshold = para_pop[i].wm_threshold;
                 para_pop[i].wm_threshold = para_pop[j].wm_threshold;
                 para_pop[j].wm_threshold = p.wm_threshold;
+		*/
 
                 p.temperature = para_pop[i].temperature;
                 para_pop[i].temperature = para_pop[j].temperature;
@@ -177,7 +182,8 @@ static void ga_print_statistics(FILE *fp, int generation)
 
     fprintf(fp, "Generation %3d\t[Intvl;\tThrsh;\tTemp;\tMon;\tUpdt]\n", generation);
     for (i = 0; i < POPULATION_SIZE; i++) {
-      fprintf(fp, "%3d: %f\t[%2d,\t%5.3f,\t%5.3f,\t%5.3f,\t%6.3f]\n", i, para_fit[i], para_pop[i].generation_period, para_pop[i].wm_threshold, para_pop[i].temperature, para_pop[i].monitoring_efficiency, para_pop[i].wm_update_rate);
+      fprintf(fp, "%3d: %f\t[%2d,\t%d,\t%5.3f,\t%5.3f,\t%6.3f]\n", i, para_fit[i], para_pop[i].generation_period, para_pop[i].wm_decay_rate, para_pop[i].temperature, para_pop[i].monitoring_efficiency, para_pop[i].wm_update_rate);
+      // fprintf(fp, "%3d: %f\t[%2d,\t%5.3f,\t%5.3f,\t%5.3f,\t%6.3f]\n", i, para_fit[i], para_pop[i].generation_period, para_pop[i].wm_threshold, para_pop[i].temperature, para_pop[i].monitoring_efficiency, para_pop[i].wm_update_rate);
     }
 }
 

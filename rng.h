@@ -8,8 +8,6 @@
 #include "lib_string.h"
 #include "oos.h"
 
-// NS 2013-07-21 remove if volatile
-// #include "rng_subject_data.h"
 
 
 #undef DEBUG
@@ -34,7 +32,7 @@ typedef struct rng_scores {
 
 
 
-
+/*
 typedef struct activation_parameters {
   double act_self;
   double act_next;
@@ -42,17 +40,16 @@ typedef struct activation_parameters {
   double act_inhi;
   double persistence;
 } ActParameters;
+*/
 
 typedef struct rng_parameters {
     double temperature;
     double monitoring_efficiency;
     double wm_update_rate;
-  // int    wm_decay_rate;
-  // BufferDecayProp wm_decay_type;
-    double wm_threshold;
-  // double wm_noise;
+    int    wm_decay_rate;
+  //  BufferDecayProp wm_decay_type;
     int    generation_period; 
-    ActParameters activation_parameters;
+  // ActParameters activation_parameters;
 } RngParameters;
 
 

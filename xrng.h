@@ -5,7 +5,6 @@
 
 #include "oos.h"
 #include "rng.h"
-// #include "rng_subject_data.h"
 #include <stdlib.h>
 #include <time.h>
 #include <gtk/gtk.h>
@@ -18,7 +17,7 @@ typedef enum canvas1_view {
 } Canvas1View;
 
 typedef enum canvas2_view {
-    CANVAS_VARY_PERIOD, CANVAS_VARY_THRESHOLD, CANVAS_VARY_MONITORING, CANVAS_VARY_UPDATE, CANVAS_VARY_TEMPERATURE
+    CANVAS_VARY_PERIOD, CANVAS_VARY_DECAY, CANVAS_VARY_MONITORING, CANVAS_VARY_UPDATE, CANVAS_VARY_TEMPERATURE
 } Canvas2View;
 
 typedef struct x_globals {
