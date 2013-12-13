@@ -32,17 +32,21 @@ int main(int argc, char **argv)
     if ((gv = oos_globals_create()) == NULL) {
         fprintf(stdout, "ABORTING: Cannot allocate global variable space\n");
     }
-    else if (!rng_create(gv, &(xg.params))) {
-        fprintf(stdout, "ABORTING: Cannot create RNG\n");
-    }
-    else if (!rng_widgets_create(&xg, gv)) {
-        fprintf(stderr, "%s: Aborting - Widget creation failed\n", argv[0]);
-    }
     else {
-        gv->random_generator = gaussian_random_generator_create();
-        rng_initialise_model(gv);
-        gtk_widget_show(xg.window);
-        gtk_main();
+      // need the gsl random generator for rng_create (schema weights)
+        gv->random_generator = gaussian_random_generator_create(); 
+	if (!rng_create(gv, &(xg.params))) {
+	  fprintf(stdout, "ABORTING: Cannot create RNG\n");
+	}
+	else if (!rng_widgets_create(&xg, gv)) {
+	  fprintf(stderr, "%s: Aborting - Widget creation failed\n", argv[0]);
+	}
+	else {
+	  
+	  rng_initialise_model(gv);
+	  gtk_widget_show(xg.window);
+	  gtk_main();
+	}
     }
 
     rng_globals_destroy((RngData *)gv->task_data);

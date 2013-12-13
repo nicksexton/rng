@@ -50,6 +50,7 @@ dual-task experiment.
 
 
 
+
 /* trying to more evenly balance +1/-1 */
 #define ACT_SELF 0.68		
 #define ACT_NEXT -0.025
@@ -67,7 +68,10 @@ dual-task experiment.
 
 
 /*  Schema selection strengths */
-//  #define SCHEMA_BIAS
+// #define SCHEMA_BIAS
+
+#define SCHEMA_WEIGHT_VARIATION 0.5 // SD of gaussian noise for selection weights
+
 #define SS_RP 0.01
 #define SS_FL 0.11      // flat selection strengths
 
@@ -420,40 +424,25 @@ static ClauseType *select_weighted_schema(OosVars *gv, long latest_response)
     // 
 
     
-    
-
-    /* -------------- NEW (BROKEN) TEMPERATURE EQUATIONS ---------------- */
-    /* 
-    if (clockwise) {
-	weighted_sum = 0;
-	for (i = 0; i < 10; i++) {
-	  weighted_sum += exp(-schema_strengths[latest_response][i]/task_data->params.temperature);
-	}
-
-	limit = weighted_sum * random_uniform(0.0, 1.0);
-	i = -1;
-	do {
-	    i++;
-	    limit -= exp(-schema_strengths[latest_response][i]/task_data->params.temperature);
-	} while ((limit > 0) && (i < 10));
-
-
-    }
-    */
 
     /* ------------------OLD TEMPERATURE EQUATIONS ---------------- */
+    // see simulation_2 for new temperature equations
 
     if (clockwise) {
 	weighted_sum = 0;
 	for (i = 0; i < 10; i++) {
-	    weighted_sum += exp(task_data->params.temperature*schema_strengths[latest_response][i]);
+	    weighted_sum += exp(task_data->params.temperature*
+				task_data->trial[gv->block].
+				  my_schema_strengths[latest_response][i]);
 	}
 
 	limit = weighted_sum * random_uniform(0.0, 1.0);
 	i = -1;
 	do {
 	    i++;
-	    limit -= exp(task_data->params.temperature*schema_strengths[latest_response][i]);
+	    limit -= exp(task_data->params.temperature*
+			 task_data->trial[gv->block].
+			   my_schema_strengths[latest_response][i]);
 	} while ((limit > 0) && (i < 10));
 
 
@@ -1085,7 +1074,6 @@ Boolean rng_create(OosVars *gv, RngParameters *pars)
 {
     RngData *task_data;
     CairoxPoint *coordinates;
-
     
 
     oos_messages_free(gv);
@@ -1097,21 +1085,6 @@ Boolean rng_create(OosVars *gv, RngParameters *pars)
     gv->block = 0;
     gv->stopped = FALSE;
 
-      
-    /* 
-double response_nodes_weights[10][10] = { 
-  { ACT_SELF, ACT_NEXT, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_PREV},
-  { ACT_PREV, ACT_SELF, ACT_NEXT, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI},
-  { ACT_INHI, ACT_PREV, ACT_SELF, ACT_NEXT, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI},
-  { ACT_INHI, ACT_INHI, ACT_PREV, ACT_SELF, ACT_NEXT, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI},
-  { ACT_INHI, ACT_INHI, ACT_INHI, ACT_PREV, ACT_SELF, ACT_NEXT, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI},
-  { ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_PREV, ACT_SELF, ACT_NEXT, ACT_INHI, ACT_INHI, ACT_INHI},
-  { ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_PREV, ACT_SELF, ACT_NEXT, ACT_INHI, ACT_INHI},
-  { ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_PREV, ACT_SELF, ACT_NEXT, ACT_INHI},
-  { ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_PREV, ACT_SELF, ACT_NEXT},
-  { ACT_NEXT, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_INHI, ACT_PREV, ACT_SELF}, 
-};
-    */
 
 
 
@@ -1246,12 +1219,33 @@ double response_nodes_weights[10][10] = {
     oos_annotation_create(gv, "Update", 0.796, 0.590, 12, 90.0, FALSE);
 
     if ((task_data = (RngData *)malloc(sizeof(RngData))) != NULL) {
-	int i, j;
+      int i, j, k, m;
 	for (i = 0; i < MAX_SUBJECTS; i++) {
 	    task_data->trial[i].n = 0;
 	    for (j = 0; j < MAX_TRIALS; j++) {
 		task_data->trial[i].response[j] = -1;
 	    }
+
+	    // malloc my_schema_strengths here
+	    task_data->trial[i].my_schema_strengths =
+	      malloc(10 * sizeof(double*));
+	    for (k = 0; k < 10; k ++) {
+	      task_data->trial[i].my_schema_strengths[k] = 
+		malloc (10 * sizeof(double));
+	    }
+
+	    // now init my_schema_strengths for each subject
+
+	    for (k = 0; k < 10; k ++) {
+	      for (m = 0; m < 10; m ++) {
+		task_data->trial[i].my_schema_strengths[k][m] = 
+		  schema_strengths[k][m] * // base schema strengths (flat)
+		  (1 + gsl_ran_gaussian(gv->random_generator, 
+					SCHEMA_WEIGHT_VARIATION));
+	      }
+	    }
+
+
 	}
 	task_data->n = 0;
 	task_data->params.temperature = pars->temperature;
@@ -1269,8 +1263,6 @@ void rng_initialise_model(OosVars *gv)
 {
     int i;
     double random_starting_activation;
-
-
 
     for (i = 0; i < 10; i++) {
 
@@ -1292,7 +1284,16 @@ void rng_initialise_model(OosVars *gv)
 
 void rng_globals_destroy(RngData *task_data)
 {
-    g_free(task_data);
+  // free task_data->trial[].my_schema_strengths here
+  int i, j;
+  for (i = 0; i < MAX_SUBJECTS; i++) {
+    for (j = 0; j < 10; j ++) {
+      free(task_data->trial[i].my_schema_strengths[j]);
+    }
+    free(task_data->trial[i].my_schema_strengths);
+  }
+  // now free rest of task data
+  g_free(task_data);
 }
 
 /******************************************************************************/
@@ -1342,6 +1343,15 @@ void rng_run(OosVars *gv)
 	oos_initialise_trial(gv);
  	rng_initialise_model(gv);    
 	
+	// test schema variation is working
+	  int j;
+	  printf ("\n");
+	  for (j = 0; j < 10; j ++) {
+	    printf ("%3.2f ", 
+		    ((RngData *)(gv->task_data))->trial[gv->block].my_schema_strengths[0][j]);
+	  }
+	  printf ("\n");
+	// end test 
 
 	while (oos_step_wrapper(gv)) {
 

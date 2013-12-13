@@ -17,7 +17,9 @@ int main(int argc, char **argv)
 
 
     /* task set temp, mon efficiency, wm update rate, WM decay rate, generation period */
-    RngParameters pars = {23.0, 0.26, 1.0, 0.0, 8, {0.60, 0.55, 0.40, -0.25, 0.87}};
+    RngParameters pars = {23.0, 0.26, 1.0, 0.0, 8, 
+			    {0.60, 0.55, 0.40, -0.25, 0.87}
+    };
     
     
    

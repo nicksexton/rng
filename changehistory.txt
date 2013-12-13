@@ -1,16 +1,24 @@
--------------- MODEL VERSION 2013-08-10 --------------------
-Model appears to provide better results than current production version of simulation 2
+------------- SIMULATION 3 -------------------
+schema_strengths are now calculated per subject
+my_schema_strengths[10][10] is added as member of RngSubjectData
+rng_create now mallocs for subject schema strengths
+rng_create also inits the schema weights by scaling the flat weights by a parameter
+SCHEMA_WEIGHT_VARIATION is SD of gaussian noise, centred around 1, which is used to scale flat weights
+rng_globals_destroy frees memory for schema strengths
 
-tweaks to simulation 2,
-
-* spreading activation parameters changed
-were: prev -0.027, next -0.024 changed to prev -0.026, next -0.025
-
-* retrieval latency scale - 4 (was 5)
-param settings: g24(variable), t 0.2, m 0.41, u 1, t 50
+Operational notes - model appears to work as hypothesized
+temperature parameters around 50 - 60 should put RNG score into the human range 
+ie. 0.35 or so
 
 
--------------- MODEL VERSION 2013-07-18_1 --------------------
+
+
+-------------- PRODUCTION VERSION 1.1
+model version 2013-07-19
+deleted - rng_model.c, oos.c
+
+
+-------------- MODEL VERSION 2013-08-18_1 --------------------
 ACT-R version
 variable WM decay (d value in base level learning equation)
 

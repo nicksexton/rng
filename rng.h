@@ -47,10 +47,7 @@ typedef struct rng_parameters {
     double temperature;
     double monitoring_efficiency;
     double wm_update_rate;
-  // int    wm_decay_rate;
-  // BufferDecayProp wm_decay_type;
     double wm_threshold;
-  // double wm_noise;
     int    generation_period; 
     ActParameters activation_parameters;
 } RngParameters;
@@ -58,14 +55,17 @@ typedef struct rng_parameters {
 
 typedef struct rng_subject_data {
     int n;
-  int response[MAX_TRIALS];
+    int response[MAX_TRIALS];
+  
+    // testing variable schema strengths
+    double ** my_schema_strengths;
+
     RngScores scores;
 } RngSubjectData;
 
 
 typedef struct rng_data {
     RngParameters  params;
-  // ActParameters  act_params;
     RngSubjectData trial[MAX_SUBJECTS];
     RngScores group_means;
     RngScores group_sd;
