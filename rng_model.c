@@ -1344,6 +1344,7 @@ void rng_run(OosVars *gv)
  	rng_initialise_model(gv);    
 	
 	// test schema variation is working
+	/*
 	  int j;
 	  printf ("\n");
 	  for (j = 0; j < 10; j ++) {
@@ -1351,6 +1352,7 @@ void rng_run(OosVars *gv)
 		    ((RngData *)(gv->task_data))->trial[gv->block].my_schema_strengths[0][j]);
 	  }
 	  printf ("\n");
+	*/
 	// end test 
 
 	while (oos_step_wrapper(gv)) {
