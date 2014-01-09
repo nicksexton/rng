@@ -1,4 +1,4 @@
-# R data analysis for simulation 3
+# R data analysis for simulation 2.01
 
 rm (list = ls())
 
@@ -8,13 +8,11 @@ library(ggplot2) # for graphs
 library(multcomp) # for post-hoc tests
 library(pastecs) # for descriptive statistics
 
-
 #build the data matrix
-generationPeriod<-gl(6, 36, labels = c(40, 34, 29, 23, 18, 12))
+generationPeriod<-gl(6, 36, labels = c(40, 33, 26, 18, 11, 4))
 generationInterval<-gl(6, 36, labels = c("3.0", "2.5", "2.0", "1.5", "1.0", "0.5"))
-simulation<-cbind(generationPeriod, generationInterval, read.delim("simulation3_data.txt", header = TRUE))
-# simulation3_data contains data per simulated subject, created by simulation3.sh
-simulation.imageDirectory <- file.path(Sys.getenv("HOME"), "Dropbox", "writing", "RNG paper", "graphs")
+simulation<-cbind(generationPeriod, generationInterval, read.delim("simulation2.01_data.txt", header = TRUE))
+simulation.imageDirectory <- file.path(Sys.getenv("HOME"), "Dropbox", "MSc", "dissertation", "graphs", "simulation2.01")
 
 
 
@@ -22,7 +20,7 @@ simulation.imageDirectory <- file.path(Sys.getenv("HOME"), "Dropbox", "writing",
                                         # plot graphs of means & error bars
 line <- ggplot (simulation, aes(generationPeriod, R))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "R")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means R.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation2.01 means R.png") 
 ggsave(imageFile)
 
                                         # a histogram, qq plot and boxplots to visually check data
@@ -57,7 +55,7 @@ sqrt(simulation.model.R.r$"r.squared") #r
 #----------------------------------------------- RNG ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, RNG))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "RNG")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means RNG.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation2.01 means RNG.png") 
 ggsave(imageFile)
 
                                         # a histogram and a qq plot to visually check normality
@@ -94,7 +92,7 @@ sqrt(simulation.model.RNG.r$"r.squared") #r
 #----------------------------------------------- CS1 ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, CS1))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "CS1")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means CS1.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation2.01 means CS1.png") 
 ggsave(imageFile)
 
 
@@ -171,7 +169,7 @@ sqrt(simulation.model.log.CS1.r$"r.squared") #r
 #----------------------------------------------- CS2 ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, CS2))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "CS2")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means CS2.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation2.01 means CS2.png") 
 ggsave(imageFile)
 
                                         # a histogram and a qq plot to visually check normality
@@ -235,7 +233,7 @@ sqrt(simulation.model.log.CS2.r$"r.squared") #r
 #----------------------------------------------- CST ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, CST))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "CST")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means CST.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation2.01 means CST.png") 
 ggsave(imageFile)
 
                                         # a histogram and a qq plot to visually check normality
@@ -299,7 +297,7 @@ sqrt(simulation.model.log.CST.r$"r.squared") #r
 #----------------------------------------------- RG ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, RG))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "RG")
-imageFile <- file.path(simulation.imageDirectory, "simulation3  means RG.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation2.01 means RG.png") 
 ggsave(imageFile)
 
                                         # a histogram and some other plots to inspect data

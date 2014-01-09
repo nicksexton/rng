@@ -1,4 +1,5 @@
-# R data analysis for simulation 3
+# R data analysis for simulation 1.2
+# FINAL - USE THIS 
 
 rm (list = ls())
 
@@ -8,13 +9,11 @@ library(ggplot2) # for graphs
 library(multcomp) # for post-hoc tests
 library(pastecs) # for descriptive statistics
 
-
 #build the data matrix
-generationPeriod<-gl(6, 36, labels = c(40, 34, 29, 23, 18, 12))
+generationPeriod<-gl(6, 36, labels = c(40, 33, 26, 18, 11, 4))
 generationInterval<-gl(6, 36, labels = c("3.0", "2.5", "2.0", "1.5", "1.0", "0.5"))
-simulation<-cbind(generationPeriod, generationInterval, read.delim("simulation3_data.txt", header = TRUE))
-# simulation3_data contains data per simulated subject, created by simulation3.sh
-simulation.imageDirectory <- file.path(Sys.getenv("HOME"), "Dropbox", "writing", "RNG paper", "graphs")
+simulation<-cbind(generationPeriod, generationInterval, read.delim("simulation1.2_data.txt", header = TRUE))
+simulation.imageDirectory <- file.path(Sys.getenv("HOME"), "Dropbox", "MSc", "dissertation", "graphs", "simulation1.2")
 
 
 
@@ -22,7 +21,7 @@ simulation.imageDirectory <- file.path(Sys.getenv("HOME"), "Dropbox", "writing",
                                         # plot graphs of means & error bars
 line <- ggplot (simulation, aes(generationPeriod, R))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "R")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means R.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation1.2 means R.png") 
 ggsave(imageFile)
 
                                         # a histogram, qq plot and boxplots to visually check data
@@ -46,18 +45,16 @@ leveneTest(simulation$R, simulation$generationPeriod, center = median)
 
                                         # main analysis
 simulation.model.R <- aov(R ~ generationPeriod, data = simulation)
-summary (simulation.model.R)
+summary (simulation1.2.model.R)
 
                                         #effect sizes
 simulation.model.R.r <- summary.lm(simulation.model.R)
 simulation.model.R.r$"r.squared"
-sqrt(simulation.model.R.r$"r.squared") #r
-
 
 #----------------------------------------------- RNG ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, RNG))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "RNG")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means RNG.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation1.2 means RNG.png") 
 ggsave(imageFile)
 
                                         # a histogram and a qq plot to visually check normality
@@ -86,15 +83,13 @@ leveneTest(simulation$RNG, simulation$generationPeriod, center = median)
 simulation.model.RNG <- aov(RNG ~ generationPeriod, data = simulation)
 summary (simulation.model.RNG)
 
-                                        #effect sizes
-simulation.model.RNG.r <- summary.lm(simulation.model.RNG)
-simulation.model.RNG.r$"r.squared"
-sqrt(simulation.model.RNG.r$"r.squared") #r
+
+
 
 #----------------------------------------------- CS1 ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, CS1))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "CS1")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means CS1.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation1.2 means CS1.png") 
 ggsave(imageFile)
 
 
@@ -171,7 +166,7 @@ sqrt(simulation.model.log.CS1.r$"r.squared") #r
 #----------------------------------------------- CS2 ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, CS2))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "CS2")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means CS2.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation1.2 means CS2.png") 
 ggsave(imageFile)
 
                                         # a histogram and a qq plot to visually check normality
@@ -196,46 +191,46 @@ leveneTest(simulation$CS2, simulation$generationPeriod, center = median)
 
 #underlying distribution skew but probably ok, levene's test ns.
 
-#                                        # main analysis
-#simulation.model.CS2 <- aov(CS2 ~ generationPeriod, data = simulation)
-#summary (simulation1.2.model.CS2)
-#
-#                                        # effect sizes
-#simulation.model.CS2.r <- summary.lm(simulation.model.CS2)
-#simulation.model.CS2.r$"r.squared"
+                                        # main analysis
+simulation.model.CS2 <- aov(CS2 ~ generationPeriod, data = simulation)
+summary (simulation.model.CS2)
+
+                                        # effect sizes
+simulation.model.CS2.r <- summary.lm(simulation.model.CS2)
+simulation.model.CS2.r$"r.squared"
 
 
 # log transform so effect sizes etc. are directly comparable with CS1
 
-simulation$log.CS2 <- log(simulation$CS2)
+#simulation$log.CS2 <- log(simulation$CS2)
+#
+#log.CS2.histogram <- ggplot (simulation, aes(log.CS2)) + theme(legend.position = "none") 
+#log.CS2.histogram + geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + labs (x = "log CS2 score", y = "density") + stat_function(fun = dnorm, args = list(mean = mean(simulation$log.CS2, na.rm = TRUE), sd = sd(simulation$log.CS2, na.rm = TRUE)), colour = "blue", size = 1)
 
-log.CS2.histogram <- ggplot (simulation, aes(log.CS2)) + theme(legend.position = "none") 
-log.CS2.histogram + geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + labs (x = "log CS2 score", y = "density") + stat_function(fun = dnorm, args = list(mean = mean(simulation$log.CS2, na.rm = TRUE), sd = sd(simulation$log.CS2, na.rm = TRUE)), colour = "blue", size = 1)
-
-log.CS2.boxplot <- ggplot(simulation, aes(generationPeriod, log.CS2))
-log.CS2.boxplot + geom_boxplot() + labs (x = "Generation Period (cycles)", y = "log CS2")
+#log.CS2.boxplot <- ggplot(simulation, aes(generationPeriod, log.CS2))
+#log.CS2.boxplot + geom_boxplot() + labs (x = "Generation Period (cycles)", y = "log CS2")
 
 
-by(simulation$log.CS2, simulation$generationPeriod, stat.desc, basic = FALSE, norm = TRUE)
-leveneTest(simulation$log.CS2, simulation$generationPeriod, center = median)
+#by(simulation$log.CS2, simulation$generationPeriod, stat.desc, basic = FALSE, norm = TRUE)
+#leveneTest(simulation$log.CS2, simulation$generationPeriod, center = median)
 
 
 
 # anova on log transformed data
-simulation.model.log.CS2 <- aov(log.CS2 ~ generationPeriod, data = simulation)
-summary (simulation.model.log.CS2)
+#simulation.model.log.CS2 <- aov(log.CS2 ~ generationPeriod, data = simulation)
+#summary (simulation.model.log.CS2)
 
                                         # effect sizes
-simulation.model.log.CS2.r <- summary.lm(simulation.model.log.CS2)
-simulation.model.log.CS2.r$"r.squared"
-sqrt(simulation.model.log.CS2.r$"r.squared") #r
+#simulation.model.log.CS2.r <- summary.lm(simulation.model.log.CS2)
+#simulation.model.log.CS2.r$"r.squared"
+#sqrt(simulation.model.log.CS2.r$"r.squared") #r
 
 
 
 #----------------------------------------------- CST ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, CST))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "CST")
-imageFile <- file.path(simulation.imageDirectory, "simulation3 means CST.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation1.2 means CST.png") 
 ggsave(imageFile)
 
                                         # a histogram and a qq plot to visually check normality
@@ -299,7 +294,7 @@ sqrt(simulation.model.log.CST.r$"r.squared") #r
 #----------------------------------------------- RG ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, RG))
 line + stat_summary(fun.y = mean, geom = "point") + stat_summary(fun.y = mean, geom = "line", aes(group=1), colour="Blue", linetype="dashed") + stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2) + labs(x = "Generation Period", y = "RG")
-imageFile <- file.path(simulation.imageDirectory, "simulation3  means RG.png") 
+imageFile <- file.path(simulation.imageDirectory, "simulation1.2 means RG.png") 
 ggsave(imageFile)
 
                                         # a histogram and some other plots to inspect data
@@ -321,14 +316,25 @@ by(simulation$RG, simulation$generationPeriod, stat.desc, basic = FALSE, norm = 
 leveneTest(simulation$RG, simulation$generationPeriod, center = median)
 
                                         # main analysis
+# NOTE Welch's F test as Levene's test is highly significant
+oneway.test(CST ~ generationPeriod, data = simulation)
 
+
+      #effect sizes
 simulation.model.RG <- aov(RG ~ generationPeriod, data = simulation)
-summary (simulation.model.RG)
-
-                                        # effect sizes
 simulation.model.RG.r <- summary.lm(simulation.model.RG)
 simulation.model.RG.r$"r.squared"
 sqrt(simulation.model.RG.r$"r.squared") #r
 
+#log transformation
+simulation$log.RG <- 1/(simulation$RG)
+#
+#log.RG.histogram <- ggplot (simulation, aes(log.RG)) + theme(legend.position = "none") 
+#log.RG.histogram + geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + labs (x = "log RG score", y = "density") + stat_function(fun = dnorm, args = list(mean = mean(simulation$log.RG, na.rm = TRUE), sd = sd(simulation$log.RG, na.rm = TRUE)), colour = "blue", size = 1)
+
+log.RG.boxplot <- ggplot(simulation, aes(generationPeriod, log.RG))
+log.RG.boxplot + geom_boxplot() + labs (x = "Generation Period (cycles)", y = "log RG")
 
 
+by(simulation$log.RG, simulation$generationPeriod, stat.desc, basic = FALSE, norm = TRUE)
+leveneTest(simulation$log.RG, simulation$generationPeriod, center = median)
