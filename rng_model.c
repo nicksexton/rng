@@ -89,9 +89,7 @@ static double total_taskset_messages = 0;
 static double total_applyset_messages = 0;
 
 
-/* OLD schema selection strength */
-// theoretical idea is that effortful schemas are higher weighted eg. +/-2, +/-3, +/-4 etc
-static double strength[10] = {0.1, 0.15, 0.18, 0.05, 0.05, 0.05, 0.18, .15, .10, 0.08};
+
 
 /* NEW schema selection strengths */
 
@@ -264,16 +262,16 @@ static long get_WM_latest(OosVars *gv)
 
 
 
-static ClauseType *select_weighted_schema(OosVars *gv, long latest_response)
+static ClauseType *select_weighted_schema(OosVars *gv)
 {
     RngData *task_data = (RngData *)(gv->task_data);
     double limit;
     double weighted_sum;
     static Boolean clockwise = TRUE;
     int i;
-    // long latest_response;
+    long latest_response;
 
-    // latest_response = get_WM_latest (gv);
+    latest_response = get_WM_latest (gv);
    
 
     
@@ -346,25 +344,16 @@ static ClauseType *select_weighted_schema(OosVars *gv, long latest_response)
 static void task_setting_output(OosVars *gv)
 {
   ClauseType *current_set, *schema;
-  // ClauseType *response;
-  // response = pl_clause_make_from_string("response(_,_).");
-    current_set = pl_clause_make_from_string("_.");
+  ClauseType *response;
+  response = pl_clause_make_from_string("response(_,_).");
+  current_set = pl_clause_make_from_string("_.");
 
-    long latest_response;
+    if (oos_match(gv, BOX_WORKING_MEMORY, response) && !oos_match(gv, BOX_CURRENT_SET, current_set)) {
 
-    // if (oos_match(gv, BOX_WORKING_MEMORY, response) && !oos_match(gv, BOX_CURRENT_SET, current_set)) {
-
-    /* If there is a previous response in working memory, but no current set */
-    /* (schema), then select a new schema at random subject to individual weights */
-    latest_response = get_WM_latest (gv);
-
-    /* handle case where get_wm_latest fails to return any item */
-    if ((latest_response >= 0) && 
-	(!oos_match(gv, BOX_CURRENT_SET, current_set))) {
+      // printf ("value of response in WM is: %ld\n", get_WM_latest (gv));
       
-      // printf ("task setting: item in WM\n");
 	schema = pl_clause_make_from_string("schema(_).");
-	pl_arg_set(schema, 1, select_weighted_schema(gv, latest_response));
+	pl_arg_set(schema, 1, select_weighted_schema(gv));
 
 
             #ifdef SUPERVISORY_ON
@@ -373,10 +362,9 @@ static void task_setting_output(OosVars *gv)
             #endif
     }
 
-    // else printf ("task setting: nothing in wm\n");
 
     pl_clause_free(current_set);
-    // pl_clause_free(response);
+    pl_clause_free(response);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -646,7 +634,7 @@ static void apply_set_output(OosVars *gv)
 {
     ClauseType *seed;
     ClauseType *current_set, *previous, *content, *template;
-    long latest_WM_item;
+    // long latest_WM_item;
 
     template = pl_clause_make_from_string("response(_).");
     seed = pl_clause_make_from_string("response(_,_).");

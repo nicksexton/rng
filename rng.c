@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
 
     /* task set temp, mon efficiency, wm update rate, WM decay rate, generation period */
-    RngParameters pars = {23.0, 0.26, 1.0, 0.0, 8, 
+    RngParameters pars = {92, 0.11, 0.98, 25, 8, 
 			    {0.60, 0.55, 0.40, -0.25, 0.87}
     };
     
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 	pars.wm_update_rate = atof (optarg);
 	break;
       case 'd' :
-	pars.wm_threshold = atof (optarg);
+	pars.wm_decay_rate = atof (optarg);
 	break;
       case 'g' :
 	pars.generation_period = atoi (optarg);
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
         rng_run(gv);
 	// print digram matrix here
 	printf ("ts_temp = %4.2f, mon_eff = %4.2f, wm_update_rate = %4.2f, wm_threshold = %4.2f, gen_period = %d\n", 
-		pars.temperature, pars.monitoring_efficiency, pars.wm_update_rate, pars.wm_threshold, pars.generation_period);
+		pars.temperature, pars.monitoring_efficiency, pars.wm_update_rate, pars.wm_decay_rate, pars.generation_period);
         rng_analyse_group_data(gv, stdout, &reference_montecarlo_means, &reference_montecarlo_sd);
         rng_globals_destroy((RngData *)gv->task_data);
         oos_globals_destroy(gv);

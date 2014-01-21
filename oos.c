@@ -201,9 +201,9 @@ static TimestampedClauseList *timestamped_clause_list_prepend_element(Timestampe
         new->head = element;
         new->timestamp = now;
         new->activation = activation;
-	new->total_activations = 0;
-	new->last_retrieval_success = FALSE;
-	new->last_retrieval_timestamp = 0;
+	// new->total_activations = 0;
+	// new->last_retrieval_success = FALSE;
+	// new->last_retrieval_timestamp = 0;
         new->tail = list;
         return(new);
     }
@@ -221,9 +221,9 @@ static TimestampedClauseList *timestamped_clause_list_add_element_to_tail(Timest
         node->head = element;
         node->timestamp = now;
         node->activation = activation;
-	node->total_activations = 0;
-	node->last_retrieval_success = FALSE;
-	node->last_retrieval_timestamp = 0;
+	// node->total_activations = 0;
+	// node->last_retrieval_success = FALSE;
+	// node->last_retrieval_timestamp = 0;
         node->tail = NULL;
         if (list == NULL) {
             list = node;
@@ -859,7 +859,7 @@ static void oos_buffer_apply_add_messages(OosVars *gv, BoxList *this)
 
 	      /* ACT-R base level learning equation - adding element re-activates chunk already in WM */
 	      
-	      if (this->decay == BUFFER_DECAY_ACT_R) {
+	      else if (this->decay == BUFFER_DECAY_ACT_R) {
 	
 		TimestampedClauseList *element = NULL;
 		element = this->content; 

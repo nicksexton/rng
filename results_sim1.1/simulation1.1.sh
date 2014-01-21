@@ -11,10 +11,10 @@
 
 
 echo 'manipulating generation rate (interval = 28c ~ 3.0s)' >> simulation1.csv
-./rng -g 28 -u 0.98 -d 25b -m 0.11 -t 92 >> simulation1.csv
+./rng -g 28 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation1.csv
 
 echo 'manipulating generation rate (interval = 25c ~ 2.5s)' >> simulation1.csv
-./rng -g 25 -u 0.98 -d 25b -m 0.11 -t 92 >> simulation1.csv
+./rng -g 25 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation1.csv
 
 echo 'basic parameter settings (interval = 22c ~ 2.0s)' >> simulation1.csv
 ./rng -g 22 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation1.csv
