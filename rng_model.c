@@ -239,174 +239,26 @@ void rng_print_schema_selection_probabilities(FILE *fp, double temperature)
 
 /******************************************************************************/
 
-double get_total_wm_activation (OosVars *gv)
-{
-  TimestampedClauseList *contents = NULL;
-  double total_activation = 0;
 
-  contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
-
-  while (!(contents == NULL)) {
-
-    if (contents->activation < -5.0) { total_activation -= 3.0; }
-    else if (contents->activation > 5.0) { total_activation += 3.0; }
-    else { total_activation += contents->activation; }
-
-    contents = contents->tail;
-  }
-
-  return total_activation;
-}
-
-void set_wm_item_last_retrieved(OosVars *gv, long item, Boolean last_retrieved)
-{
-  TimestampedClauseList *contents = NULL;
-  long wm_item;
-
-  contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
-
-  while (!(contents == NULL)) {
-
-    pl_is_integer(pl_arg_get(contents->head, 1), &wm_item);
-    if (item == wm_item) {
-      contents->last_retrieval_success = last_retrieved;
-      contents->last_retrieval_timestamp = gv->cycle;
-      break;
-    }
-    contents = contents->tail;
-  }
-}
-
-double wm_retrieval_latency(OosVars *gv, long item)
-{
-  TimestampedClauseList *contents = NULL;
-  long wm_item;
-  double retrieval_latency, activation, mean_activation;
-
-  contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
-
-  while (!(contents == NULL)) {
-
-    pl_is_integer(pl_arg_get(contents->head, 1), &wm_item);
-    if (item == wm_item) {
-      activation = contents->activation;
-
-      mean_activation = get_total_wm_activation(gv) / 10;
-
-      /* CORRECT (?) code */
-      retrieval_latency = (WM_RETRIEVAL_LATENCY_SCALE * exp(-1 * (activation - mean_activation)));
-
-      /* OLD (reverted) code (WRONG??) */
-      // retrieval_latency = (WM_RETRIEVAL_LATENCY_SCALE * exp(-1 * (activation - mean_activation)));
-
-
-      return (ceil (retrieval_latency)); // round up
-    }
-    contents = contents->tail;
-  }
-
-  return (-1);
-}
-
-
-Boolean item_retrieved_from_wm(OosVars *gv, double item_activation)
-{
-  /* implements schochastic ACT-R memory retrieval */
-  /* see Anderson 2007 p.111 WM p.142 */
-
-  RngData *task_data = (RngData *)(gv->task_data);
-
-  double noise = 1;
-  double p, probability;
-
-  /* debug vars */
-  double debug_activation = item_activation;
-  double mean_activation = get_total_wm_activation(gv) / 10;
-  
-  noise = gsl_ran_logistic(gv->random_generator, WM_RETRIEVAL_NOISE);
-
-  /* ACT-R equation */
-  
-  double exponent = ( -1 * (item_activation - mean_activation - task_data->params.wm_threshold + noise) 
-		      / WM_RETRIEVAL_SPREAD);
-  
-
-
-  /* implementation - WM retrieval threshold is relative to total activation */
-  // probability = 1 / (1 + exp ( -1 * (item_activation + noise - threshold) / WM_RETRIEVAL_SPREAD));
-  probability = 1 / (1 + exp (exponent));
-
-  p = random_uniform(0.0, 1.0);
-  // printf ("retrieving from wm, p = %f: %f\n", probability, p);
-
-  return (probability > p);
-}
 
 
 static long get_WM_latest(OosVars *gv)
 {
-  long wm_item;
-  long latest_item;
-  TimestampedClauseList *contents = NULL;
-  long latest_timestamp = 0;
+  long response_value = -1;
+
+  TimestampedClauseList *contents;
   contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
 
-  while (!(contents == NULL)) {
 
-    pl_is_integer(pl_arg_get(contents->head, 1), &wm_item);      
+  /* if (functor_comp(response, "response", 2)) {
+      // response_value = pl_functor(pl_arg_get(response, 2));
+      response_value = pl_arg_get(response, 1);
+  */
 
-    if (contents->timestamp > latest_timestamp) {
+  pl_is_integer(pl_arg_get(contents->head, 1), &response_value); 
 
-      if (item_retrieved_from_wm(gv, contents->activation)) {
-	set_wm_item_last_retrieved (gv, wm_item, TRUE);      
-	latest_timestamp = contents->timestamp;
-	latest_item = wm_item;
-      }
-
-      else {
-	set_wm_item_last_retrieved (gv, wm_item, FALSE);
-      }  
-    }
-  
-    contents = contents->tail;
-  }
-
-  if (latest_timestamp > 0) { 
-      
-      return (latest_item);
-    }
-
-  else return (-1);
-}
-
-
-static Boolean match_item_in_wm (OosVars *gv, long item_to_match)
-{
-  TimestampedClauseList *contents = NULL;
-  long wm_item;
-  double item_activation;
-
-  contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
-
-  while (!(contents == NULL)) {
-
-    pl_is_integer(pl_arg_get(contents->head, 1), &wm_item);
-    if (item_to_match == wm_item) {
-      item_activation = contents->activation;
-      break;
-    }
-    contents = contents->tail;
-  }
-  
-  if (item_retrieved_from_wm(gv, item_activation)) {
-    set_wm_item_last_retrieved (gv, item_to_match, TRUE);      
-    return (1);
-  }
-
-  else {
-    set_wm_item_last_retrieved (gv, item_to_match, FALSE);      
-    return 0;
-  }
+	    
+  return (response_value);
 }
 
 
@@ -421,7 +273,8 @@ static ClauseType *select_weighted_schema(OosVars *gv, long latest_response)
     int i;
     // long latest_response;
 
-    // 
+    // latest_response = get_WM_latest (gv);
+   
 
     
 
@@ -551,179 +404,122 @@ static long get_response_buffer_timestamp(OosVars *gv)
 static Boolean check_random(OosVars *gv, long r)
 {
 
-  long response_buffer_timestamp = get_response_buffer_timestamp(gv);
+    ClauseType *template;
 
     /* Return TRUE if this item appears to be random */
 
+    /* Build the template based on the proposed response: */
+    template = pl_clause_make_from_string("response(_,_).");
+    pl_arg_set_to_int(template, 1, r);
     /* If it matches WM, then it isn't random: */
+    if (oos_match(gv, BOX_WORKING_MEMORY, template)) {
+	/* Free the template and return the result: */
+	pl_clause_free(template);
 
-  /*
-  if (match_item_in_wm(gv, r) && 
-      ((gv->cycle - response_buffer_timestamp) >= r_latency) ) {
-      
-    printf ("monitoring: matched WM after %4.2f cycles\n", r_latency);
-      
-       return(FALSE);
+
+	// printf ("monitoring: matched WM\n");
+
+
+	return(FALSE);
     }
     else {
 	Boolean result = TRUE;
-  */
-	// pl_clause_free(template);
+
+	pl_clause_free(template);
 
 // #if FALSE
 
-	TimestampedClauseList *contents, *buffer;
-	long temp_wm_value;
+	TimestampedClauseList *contents;
+	// long p1, p2;
+	// int g1, g2;
 
-	long previous[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
-	double latency[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
-	long gaps[10] = {-99, -99, -99, -99, -99, -99, -99, -99, -99, -99 };
+	contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
 
-	long latest_timestamp, find_next_latest_timestamp = 0;
-
-	latest_timestamp = gv->cycle;
-
-	buffer = NULL;
-
-	int i, j = 0;
-	for (i = 0; i < 10; i++) { // outer loop incrementally fills arrays
-
-	  contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
-	  find_next_latest_timestamp = 0;
-	  while (!(contents == NULL)) { // inner loop looks for highest timestamp
-	    
-	    if (contents->timestamp > find_next_latest_timestamp && contents->timestamp < latest_timestamp) {
-	      buffer = contents;
-	      find_next_latest_timestamp = buffer->timestamp;
-	    }
-	    contents = contents->tail;
-	  }
-
-
-
-	  // buffer now contains next latest WM item not already processed
-	  if (buffer != NULL) {
-	    pl_is_integer(pl_arg_get(buffer->head, 1), &temp_wm_value); 
-	    if (item_retrieved_from_wm(gv, buffer->activation)) {
-	      
-	      previous[j] = temp_wm_value; 
-	      latency[j] = wm_retrieval_latency(gv, previous[j]);
-	      set_wm_item_last_retrieved (gv, temp_wm_value, TRUE);
-	      latest_timestamp = buffer->timestamp;
-	      
-	      
-	      if (j == 0) {
-		gaps[0] = r - previous[0];
-	      }
-	      if (j > 0) {
-		gaps[j] = previous[j-1] - previous[j];
-	      }
-	      j ++;
-
-	    }
-	    else {
-	      set_wm_item_last_retrieved (gv, temp_wm_value, FALSE);
-	    }
-	    buffer = NULL;
-	  }
-	
-	}
 	/*
-	printf ("working memory contents: ");
-	for (i = 0; i < 10; i++) {
-	  if (previous[i] == -1) {
-	    break;
-	  }
-	  printf ("%ld(%2.1f), ", previous[i], latency[i]);
-	  
-	}
-	printf ("\n");
+	if ((contents != NULL) && (contents->tail != NULL)) {
+	    if (pl_is_integer(pl_arg_get(contents->head, 1), &p1) && pl_is_integer(pl_arg_get(contents->tail->head, 1), &p2)) {
+	      g1 = (r - p1);
+	      g2 = (p1 - p2);
 	*/
 
-	for (i=0; i < 10; i++) { 
-	  if (previous[i] == -1) {
-	    break;
-	  } 
-
-	  /* ----------- CHECK if item is contained in WM -------------- */
-	  if ((gv->cycle - response_buffer_timestamp) >= latency[i]) {
-	    if ((previous[i] > 0) && (r == previous[i])) {
-	      // printf ("monitoring: item %ld matched WM position %d, after %4.2f cycles\n", r, i, latency[i]); // debug
-	      return (FALSE);
-	    }
+	long previous[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+	int gap[10] = {-99, -99, -99, -99, -99, -99, -99, -99, -99, -99 };
+	
+	int i = 0;
+	while (contents != NULL) {
+	  pl_is_integer(pl_arg_get(contents->head, 1), &previous[i]);
+	  if (i == 0) { 
+	    gap[0] = r - previous[0];
+	  }
+	  else {
+	    gap[i] = previous[i] - previous[i-1];
 	  }
 
-	      /* -------------- CHECK if response is step of 1  --------------- */
-	  /*
-	  if (gv->cycle - response_buffer_timestamp >= latency[0]) {
-	    if (gaps[0] == 1) {
-	      // printf ("monitoring: g1 == 1, after %4.2f cycles\n", p1_latency); // debug
-	      return (FALSE);
-	    }
-	    
-	    if (gaps[0] == -1) {
-	      // printf ("monitoring: g1 == -1, after %4.2f cycles\n", p1_latency); // debug
-	      return (FALSE);
-	    }
+	  contents = contents->tail;
+	}
+	     
+	      /* -------------- CHECK RANDOM RULES --------------  */
+
+	      /* -------------- CHECK IMMEDIATELY ---------------  */
+	     
+
+
+	      /* -------------- CHECK AFTER 1 CYCLE  --------------- */
+	      /*
+	      if (gv->cycle - get_response_buffer_timestamp(gv) > 1) {
+		if (g1 == 1) {
+		  // printf ("monitoring: g1 == 1\n"); // debug
+		  return (FALSE);
+		}
+
+		if (g1 == -1) {
+		  // printf ("monitoring: g1 == -1\n"); // debug
+		  return (FALSE);
+		}
+	      }
+
+	      */
+		/* ----------- CHECK AFTER 2 CYCLE --------------- */
+	/*
+		if (gv->cycle - get_response_buffer_timestamp(gv) > 2) {
+		  if (g1 == g2) {
+		    // printf ("monitoring: g1 == g2\n"); // debug
+		    return (FALSE);
+		  }
+		}
+	*/
+      
+	for (i = 0; gap[i] != -99; i++) {
+	  if (gap[0] == gap[i]) {
+	    return (FALSE);
 	  }
-
-	  */
-
-
-                /* ----------- CHECK if using associate already contained in WM -------------- */
-	  if ((gv->cycle - response_buffer_timestamp) >= latency[i]) {
-	    if ((i > 0) && (gaps[0] > -99) && (gaps[0] == gaps[i])) {
-	      // printf ("monitoring: gap %ld == gap between %ld and %ld, after %4.2f cycles\n", gaps[0], (i > 0 ? previous[i-1] : r), previous[i], latency[i]); // debug
-	      return (FALSE);
-	    }
-	  }
-
-
+	}
+    
 		/* ------------ END MONITORING RULES ----------------- */
 	    
-	}
+	
 
-	return(TRUE);
-	// }
+	return(result);
+    }
+
 }
 
 static Boolean check_whether_to_switch (OosVars *gv)
 {
-  ClauseType *template;
+  ClauseType *wm_latest_item, *template;
+  long int wm_timestamp = -1;
   Boolean whether_to_switch = FALSE;
-  long response_value;
-  TimestampedClauseList *contents = NULL;
-  long latest_timestamp = 0;
+
 
    /* only fires if there is something in WM to use as a timestamp */
-  // wm_latest_item = pl_clause_make_from_string("response(_,_).");
-  // if (oos_match(gv, BOX_WORKING_MEMORY, wm_latest_item)) {
+  wm_latest_item = pl_clause_make_from_string("response(_,_).");
+  if (oos_match(gv, BOX_WORKING_MEMORY, wm_latest_item)) {
 
-  /* get WM latest - possibly encapsulate this in function */
+    /* get timestamp of latest item in WM */
+    pl_is_integer(pl_arg_get(wm_latest_item, 2), &wm_timestamp); 
 
-  
-  contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
-  while (!(contents == NULL)) {
-
-    if (contents->timestamp > latest_timestamp) {
-
-      pl_is_integer(pl_arg_get(contents->head, 1), &response_value);
-
-      if (item_retrieved_from_wm(gv, contents->activation)) {
-	latest_timestamp = contents->timestamp;
-	set_wm_item_last_retrieved (gv, response_value, TRUE);      
-      }
-
-      else {
-	set_wm_item_last_retrieved (gv, response_value, FALSE);
-      }          
-    }
-  
-    contents = contents->tail;
-  }
-
-  if ((latest_timestamp > 0) && 
-      ((gv->cycle - latest_timestamp) % SET_SWITCH_LATENCY == (SET_SWITCH_LATENCY - 1))) {
+    /* fire every n cycles */
+    if ((gv->cycle - wm_timestamp) % SET_SWITCH_LATENCY == (SET_SWITCH_LATENCY - 1)) {
 
       /* if nothing in response buffer */
       template = pl_clause_make_from_string("response(_,_).");
@@ -731,11 +527,11 @@ static Boolean check_whether_to_switch (OosVars *gv)
 	whether_to_switch = TRUE;
       }
       pl_clause_free(template);
+    }
   }
-  
 	
 	
-  // pl_clause_free (wm_latest_item);
+  pl_clause_free (wm_latest_item);
   return (whether_to_switch);
 
 }
@@ -805,9 +601,9 @@ static void monitoring_output(OosVars *gv)
 
 /*----------------------------------------------------------------------------*/
 
-static int apply_schema(ClauseType *schema, long last)
+
+static int apply_schema(ClauseType *schema, ClauseType *seed)
 {
-  /*
     long last;
 
     if (!functor_comp(seed, "response", 2)) {
@@ -816,8 +612,6 @@ static int apply_schema(ClauseType *schema, long last)
     else if (!pl_is_integer(pl_arg_get(seed, 1), &last)) {
 	return(-1);
     }
-
-  */
 
     if (functor_comp(schema, "schema", 1)) {
 	char *s = pl_functor(pl_arg_get(schema, 1));
@@ -850,12 +644,12 @@ static int apply_schema(ClauseType *schema, long last)
 
 static void apply_set_output(OosVars *gv)
 {
-    // ClauseType *seed;
+    ClauseType *seed;
     ClauseType *current_set, *previous, *content, *template;
     long latest_WM_item;
 
     template = pl_clause_make_from_string("response(_).");
-    // seed = pl_clause_make_from_string("response(_,_).");
+    seed = pl_clause_make_from_string("response(_,_).");
     previous = pl_clause_make_from_string("_.");
     current_set = pl_clause_make_from_string("schema(_).");
 
@@ -871,18 +665,16 @@ static void apply_set_output(OosVars *gv)
     if (!oos_match_above_threshold(gv, BOX_RESPONSE_BUFFER, previous, MATCH_THRESHOLD) && !oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
 
 	/* If we have a previous response to use as a seed, then ...	      */
-      // if (oos_match(gv, BOX_WORKING_MEMORY, seed)) {
-      latest_WM_item = get_WM_latest(gv);
-      if (latest_WM_item >= 0) {
+      if (oos_match(gv, BOX_WORKING_MEMORY, seed)) {
+  
 	
-	    /* If there is also a current schema, then ...		      */
-	  if (oos_match(gv, BOX_CURRENT_SET, current_set)) {
-		/* Apply the current schema to the seed and excite the result */
+	/* If there is also a current schema, then ...		      */
+	if (oos_match(gv, BOX_CURRENT_SET, current_set)) {
+	  /* Apply the current schema to the seed and excite the result */
 
 	      content = pl_clause_make_from_string("response(_).");
-	      pl_arg_set_to_int(content, 1, apply_schema(current_set, latest_WM_item));
+	      pl_arg_set_to_int(content, 1, apply_schema(current_set, seed));
 	      oos_message_create(gv, MT_EXCITE, BOX_APPLY_SET, BOX_RESPONSE_NODES, content);
-	      total_applyset_messages ++;
 	    
 	  }
       }
@@ -890,11 +682,10 @@ static void apply_set_output(OosVars *gv)
 	    	
 		
 
-
     }
 #endif
 
-    // pl_clause_free(seed);
+    pl_clause_free(seed);
     pl_clause_free(template);
     pl_clause_free(previous);
     pl_clause_free(current_set);
@@ -1095,9 +886,14 @@ Boolean rng_create(OosVars *gv, RngParameters *pars)
     oos_process_create(gv, "Propose Response", BOX_PROPOSE_RESPONSE, 0.5, 0.9, propose_response_output);
 
     oos_buffer_create(gv, "Current Set", BOX_CURRENT_SET, 0.2, 0.4, BUFFER_DECAY_NONE, 0, BUFFER_CAPACITY_UNLIMITED, 0, BUFFER_EXCESS_IGNORE, BUFFER_ACCESS_RANDOM);   
+
+    // WM implementation for simulations 2&3    
+    // oos_buffer_create(gv, "Working Memory", BOX_WORKING_MEMORY, 0.8, 0.4, BUFFER_DECAY_ACT_R, 0, BUFFER_CAPACITY_UNLIMITED, 0, BUFFER_EXCESS_IGNORE, BUFFER_ACCESS_LIFO);
+
+    // WM implementation for simulations 1&4
+    oos_buffer_create(gv, "Working Memory", BOX_WORKING_MEMORY, 0.8, 0.4, BUFFER_DECAY_RECENCY, pars->wm_decay_rate, BUFFER_CAPACITY_UNLIMITED, pars->wm_decay_rate, BUFFER_EXCESS_IGNORE, BUFFER_ACCESS_LIFO);
     
-    oos_buffer_create(gv, "Working Memory", BOX_WORKING_MEMORY, 0.8, 0.4, BUFFER_DECAY_ACT_R, 0, BUFFER_CAPACITY_UNLIMITED, 0, BUFFER_EXCESS_IGNORE, BUFFER_ACCESS_LIFO);
-    
+
     oos_buffer_create(gv, "Response Nodes", BOX_RESPONSE_NODES, 0.2, 0.9, BUFFER_DECAY_NONE, 0, BUFFER_CAPACITY_LIMITED, 10, BUFFER_EXCESS_RANDOM, BUFFER_ACCESS_RANDOM);
     
     oos_buffer_create(gv, "Response Buffer", BOX_RESPONSE_BUFFER, 0.5, 0.7, BUFFER_DECAY_NONE, 0, BUFFER_CAPACITY_LIMITED, 1, BUFFER_EXCESS_OLDEST, BUFFER_ACCESS_LIFO);
@@ -1251,7 +1047,7 @@ Boolean rng_create(OosVars *gv, RngParameters *pars)
 	task_data->params.temperature = pars->temperature;
 	task_data->params.monitoring_efficiency = pars->monitoring_efficiency;
 	task_data->params.wm_update_rate = pars->wm_update_rate;
-	task_data->params.wm_threshold = pars->wm_threshold;
+	task_data->params.wm_decay_rate = pars->wm_decay_rate;
 	// task_data->params.wm_decay_type = pars->wm_decay_type;
 	task_data->params.generation_period = pars->generation_period;
 	gv->task_data = (void *)task_data;
@@ -1272,13 +1068,7 @@ void rng_initialise_model(OosVars *gv)
 	random_starting_activation = random_uniform (0.05, STARTING_RESPONSE_NODE_ACTIVATION_MAX);
 	oos_buffer_create_element(gv, BOX_RESPONSE_NODES, element, random_starting_activation);
 
-	/* Initialise  WM chunks to random activation with 0 timestamp*/
-	/* response, timestamp, counter */
-	g_snprintf(element, 64, "response(%d, 0).", (9-i)); 
-	oos_buffer_create_element(gv, BOX_WORKING_MEMORY, element, 0); 
-
     }
-
 
 }
 

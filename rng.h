@@ -47,7 +47,7 @@ typedef struct rng_parameters {
     double temperature;
     double monitoring_efficiency;
     double wm_update_rate;
-    double wm_threshold;
+    int wm_decay_rate;
     int    generation_period; 
     ActParameters activation_parameters;
 } RngParameters;
