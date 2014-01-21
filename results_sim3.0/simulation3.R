@@ -8,9 +8,10 @@ library(ggplot2) # for graphs
 library(multcomp) # for post-hoc tests
 library(pastecs) # for descriptive statistics
 
+library (lsr) # for eta squared
 
-#build the data matrix
-generationPeriod<-gl(6, 36, labels = c(40, 34, 29, 23, 18, 12))
+#build the data matrixg
+enerationPeriod<-gl(6, 36, labels = c(40, 34, 29, 23, 18, 12))
 generationInterval<-gl(6, 36, labels = c("3.0", "2.5", "2.0", "1.5", "1.0", "0.5"))
 simulation<-cbind(generationPeriod, generationInterval, read.delim("simulation3_data.txt", header = TRUE))
 # simulation3_data contains data per simulated subject, created by simulation3.sh
@@ -38,20 +39,17 @@ R.boxplot + geom_boxplot() + labs (x = "Generation Period (cycles)", y = "R")
 
                                         # descriptives
 by(simulation$R, simulation$generationPeriod, stat.desc, basic = FALSE, norm = TRUE)
+# note: some conditions affected by positive skew, however sample size big enough to assume
+# sampling dist. is normal
 
                                         # Levene's test
 leveneTest(simulation$R, simulation$generationPeriod, center = median)
-
-# underlying distributions positively skewed, levene's test ns.
+# levene's test ns.
 
                                         # main analysis
 simulation.model.R <- aov(R ~ generationPeriod, data = simulation)
 summary (simulation.model.R)
-
-                                        #effect sizes
-simulation.model.R.r <- summary.lm(simulation.model.R)
-simulation.model.R.r$"r.squared"
-sqrt(simulation.model.R.r$"r.squared") #r
+# n.s. main effect of gen rate on R
 
 
 #----------------------------------------------- RNG ------------------------------------------------
@@ -79,17 +77,25 @@ by(simulation$RNG, simulation$generationPeriod, stat.desc, basic = FALSE, norm =
 
                                         # Levene's test
 leveneTest(simulation$RNG, simulation$generationPeriod, center = median)
+# Levene's test significant, p = .023
+# however ratio of variances for raw data (Hartley's Fmax) = 2.47 - considered robust for ANOVA
 
-# underlying distributions acceptably normal, levene's test ns.
+
+
 
                                         # main analysis
 simulation.model.RNG <- aov(RNG ~ generationPeriod, data = simulation)
 summary (simulation.model.RNG)
+# sig. main effect of gen rate on RNG F(5,210) = 2.60, p = 0.026
+
 
                                         #effect sizes
-simulation.model.RNG.r <- summary.lm(simulation.model.RNG)
-simulation.model.RNG.r$"r.squared"
-sqrt(simulation.model.RNG.r$"r.squared") #r
+#simulation.model.RNG.r <- summary.lm(simulation.model.RNG)
+#simulation.model.RNG.r$"r.squared"
+#sqrt(simulation.model.RNG.r$"r.squared") #r
+
+etaSquared (simulation.model.RNG, type = 2, anova = FALSE)
+
 
 #----------------------------------------------- CS1 ------------------------------------------------
 line <- ggplot (simulation, aes(generationPeriod, CS1))
@@ -144,28 +150,23 @@ log.CS1.boxplot + geom_boxplot() + labs (x = "Generation Period (cycles)", y = "
 
 by(simulation$log.CS1, simulation$generationPeriod, stat.desc, basic = FALSE, norm = TRUE)
 leveneTest(simulation$log.CS1, simulation$generationPeriod, center = median)
-#skew much improved, levene's ns. 
+#skew ok, levene's still v signf
+# Hartley's Fmax = 5.138
+
 
 
 
                                         # main analysis
 # NOTE Welch's F test as Levene's test is highly significant
-#oneway.test(CS1 ~ generationPeriod, data = simulation)
-#
-#                                        #effect sizes
-#simulation.model.CS1 <- aov(CS1 ~ generationPeriod, data = simulation)
-#simulation.model.CS1.r <- summary.lm(simulation.model.CS1)
-#simulation.model.CS1.r$"r.squared"
+oneway.test(CS1 ~ generationPeriod, data = simulation)
+
+                                        #effect sizes
+simulation.model.CS1 <- aov(CS1 ~ generationPeriod, data = simulation)
+etaSquared (simulation.model.CS1, type = 2, anova = FALSE)
 
 
-# anova on log transformed data
-simulation.model.log.CS1 <- aov(log.CS1 ~ generationPeriod, data = simulation)
-summary (simulation.model.log.CS1)
 
-                                        # effect sizes
-simulation.model.log.CS1.r <- summary.lm(simulation.model.log.CS1)
-simulation.model.log.CS1.r$"r.squared"
-sqrt(simulation.model.log.CS1.r$"r.squared") #r
+
 
 
 #----------------------------------------------- CS2 ------------------------------------------------
@@ -196,39 +197,40 @@ leveneTest(simulation$CS2, simulation$generationPeriod, center = median)
 
 #underlying distribution skew but probably ok, levene's test ns.
 
-#                                        # main analysis
-#simulation.model.CS2 <- aov(CS2 ~ generationPeriod, data = simulation)
-#summary (simulation1.2.model.CS2)
-#
-#                                        # effect sizes
-#simulation.model.CS2.r <- summary.lm(simulation.model.CS2)
-#simulation.model.CS2.r$"r.squared"
+                                        # main analysis
+simulation.model.CS2 <- aov(CS2 ~ generationPeriod, data = simulation)
+summary (simulation.model.CS2)
+
+                                        # effect sizes
+simulation.model.CS1 <- aov(CS2 ~ generationPeriod, data = simulation)
+etaSquared (simulation.model.CS2, type = 2, anova = FALSE)
+
 
 
 # log transform so effect sizes etc. are directly comparable with CS1
 
-simulation$log.CS2 <- log(simulation$CS2)
+#simulation$log.CS2 <- log(simulation$CS2)
+#
+#log.CS2.histogram <- ggplot (simulation, aes(log.CS2)) + theme(legend.position = "none") 
+#log.CS2.histogram + geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + labs (x = "log CS2 score", y = "density") + stat_function(fun = dnorm, args = list(mean = mean(simulation$log.CS2, na.rm = TRUE), sd = sd(simulation$log.CS2, na.rm = TRUE)), colour = "blue", size = 1)
 
-log.CS2.histogram <- ggplot (simulation, aes(log.CS2)) + theme(legend.position = "none") 
-log.CS2.histogram + geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + labs (x = "log CS2 score", y = "density") + stat_function(fun = dnorm, args = list(mean = mean(simulation$log.CS2, na.rm = TRUE), sd = sd(simulation$log.CS2, na.rm = TRUE)), colour = "blue", size = 1)
-
-log.CS2.boxplot <- ggplot(simulation, aes(generationPeriod, log.CS2))
-log.CS2.boxplot + geom_boxplot() + labs (x = "Generation Period (cycles)", y = "log CS2")
+#log.CS2.boxplot <- ggplot(simulation, aes(generationPeriod, log.CS2))
+#log.CS2.boxplot + geom_boxplot() + labs (x = "Generation Period (cycles)", y = "log CS2")
 
 
-by(simulation$log.CS2, simulation$generationPeriod, stat.desc, basic = FALSE, norm = TRUE)
-leveneTest(simulation$log.CS2, simulation$generationPeriod, center = median)
+#by(simulation$log.CS2, simulation$generationPeriod, stat.desc, basic = FALSE, norm = TRUE)
+#leveneTest(simulation$log.CS2, simulation$generationPeriod, center = median)
 
 
 
 # anova on log transformed data
-simulation.model.log.CS2 <- aov(log.CS2 ~ generationPeriod, data = simulation)
-summary (simulation.model.log.CS2)
+#simulation.model.log.CS2 <- aov(log.CS2 ~ generationPeriod, data = simulation)
+#summary (simulation.model.log.CS2)
 
                                         # effect sizes
-simulation.model.log.CS2.r <- summary.lm(simulation.model.log.CS2)
-simulation.model.log.CS2.r$"r.squared"
-sqrt(simulation.model.log.CS2.r$"r.squared") #r
+#simulation.model.log.CS2.r <- summary.lm(simulation.model.log.CS2)
+#simulation.model.log.CS2.r$"r.squared"
+#sqrt(simulation.model.log.CS2.r$"r.squared") #r
 
 
 
@@ -259,40 +261,17 @@ by(simulation$CST, simulation$generationPeriod, stat.desc, basic = FALSE, norm =
 leveneTest(simulation$CST, simulation$generationPeriod, center = median)
 
                                         # main analysis
-# NOTE Welch's F test as Levene's test is highly significant
-#oneway.test(CST ~ generationPeriod, data = simulation1.2)
-
-
-      #effect sizes
-#simulation.model.CST <- aov(CST ~ generationPeriod, data = simulation)
-#simulation.model.CST.r <- summary.lm(simulation.model.CST)
-#simulation.model.CST.r$"r.squared"
-
-# log transform so effect sizes etc. are directly comparable with CS1
-
-simulation$log.CST <- log(simulation$CST)
-
-log.CST.histogram <- ggplot (simulation, aes(log.CST)) + theme(legend.position = "none") 
-log.CST.histogram + geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + labs (x = "log CST score", y = "density") + stat_function(fun = dnorm, args = list(mean = mean(simulation$log.CST, na.rm = TRUE), sd = sd(simulation$log.CST, na.rm = TRUE)), colour = "blue", size = 1)
-
-log.CST.boxplot <- ggplot(simulation, aes(generationPeriod, log.CST))
-log.CST.boxplot + geom_boxplot() + labs (x = "Generation Period (cycles)", y = "log CST")
-
-
-by(simulation$log.CST, simulation$generationPeriod, stat.desc, basic = FALSE, norm = TRUE)
-leveneTest(simulation$log.CST, simulation$generationPeriod, center = median)
+# Welch's F test as Levene's test is highly significant
+# also don't transform data so effect sizes are consistent with CS1, CS2
+oneway.test(CST ~ generationPeriod, data = simulation)
 
 
 
-# anova on log transformed data
-simulation.model.log.CST <- aov(log.CST ~ generationPeriod, data = simulation)
-summary (simulation.model.log.CST)
+
 
                                         # effect sizes
-simulation.model.log.CST.r <- summary.lm(simulation.model.log.CST)
-simulation.model.log.CST.r$"r.squared"
-sqrt(simulation.model.log.CST.r$"r.squared") #r
-
+simulation.model.CST <- aov(CST ~ generationPeriod, data = simulation)
+etaSquared (simulation.model.CST, type = 2, anova = FALSE)
 
 
 
@@ -321,14 +300,12 @@ by(simulation$RG, simulation$generationPeriod, stat.desc, basic = FALSE, norm = 
 leveneTest(simulation$RG, simulation$generationPeriod, center = median)
 
                                         # main analysis
-
 simulation.model.RG <- aov(RG ~ generationPeriod, data = simulation)
 summary (simulation.model.RG)
 
-                                        # effect sizes
-simulation.model.RG.r <- summary.lm(simulation.model.RG)
-simulation.model.RG.r$"r.squared"
-sqrt(simulation.model.RG.r$"r.squared") #r
 
+                                        # effect sizes
+simulation.model.RG <- aov(RG ~ generationPeriod, data = simulation)
+etaSquared (simulation.model.RG, type = 2, anova = FALSE)
 
 
