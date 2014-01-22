@@ -68,14 +68,14 @@ cat output_log.dat >> simulation4_data.txt
 
 
 echo 'manipulating generation rate (interval = 16c ~ 1.0s)' >> simulation4_summary.txt
-./rng -g 16 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation4_summary.txt
+../rng -g 16 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation4_summary.txt
 
 
 
 
 
 echo 'manipulating generation rate (interval = 12c ~ 0.5s)' >> simulation4_summary.txt
-./rng -g 13 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation4_summary.txt
+../rng -g 13 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation4_summary.txt
 
 
 
@@ -84,11 +84,11 @@ cat output_log.dat >> simulation4_data.txt
 
 
 echo 'manipulating generation rate (interval = 8c ~ 0.5s)' >> simulation4_summary.txt
-./rng -g 8 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation4_summary.txt
+../rng -g 8 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation4_summary.txt
 
 
 echo 'manipulating generation rate (interval = 6c ~ 0.5s)' >> simulation4_summary.txt
-./rng -g 6 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation4_summary.txt
+../rng -g 6 -u 0.98 -d 25 -m 0.11 -t 92 >> simulation4_summary.txt
 
 
 echo 'manipulating generation rate (interval = 4c ~ 0.5s)' >> simulation4_summary.txt
