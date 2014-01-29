@@ -482,9 +482,9 @@ void rng_analyse_group_data(OosVars *gv, FILE *fp, RngScores *zscore_ref_means, 
 	fprint_rng_scores(fp, &z_score_sd);
 	fprintf(fp, "\n");
 
-    }
+     }
+   }
 }
-
 
 
 
