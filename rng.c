@@ -64,11 +64,15 @@ int main(int argc, char **argv)
         rng_create(gv, &pars);
         rng_initialise_model(gv);
         rng_run(gv);
-	// print digram matrix here
+	// Report data here
+	/*
 	printf ("ts_temp = %4.2f, mon_eff = %4.2f, wm_update_rate = %4.2f, wm_decay_rate = %d, gen_period = %d\n", 
 		pars.temperature, pars.monitoring_efficiency, pars.wm_update_rate, pars.wm_decay_rate, pars.generation_period);
+	*/
         rng_analyse_group_data(gv, stdout, &reference_montecarlo_means, &reference_montecarlo_sd);
-        rng_globals_destroy((RngData *)gv->task_data);
+ 
+	//now clean up and finish
+	rng_globals_destroy((RngData *)gv->task_data);
         oos_globals_destroy(gv);
     }
     exit(1);
