@@ -461,7 +461,7 @@ void rng_analyse_group_data(OosVars *gv, FILE *fp, RngScores *zscore_ref_means, 
 
 	//        fprintf(fp, "---\tR\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
 	// print rate first
-	fprintf(fp, "---\trate\tR\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
+	// fprintf(fp, "---\trate\tR\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
         fprintf(fp, "means:\t");
 	fprintf(fp, "%d\t", task_data->params.generation_period);// print rate 
 	fprint_rng_scores(fp, &(task_data->group_means));
