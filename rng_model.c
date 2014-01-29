@@ -1330,13 +1330,14 @@ void rng_run(OosVars *gv)
     fp = fopen("output_log.dat", "w"); /* Save output to output_log.dat file */
 
  // print output file header
+    /*
     fprintf(fp, "R\tRNG\tRG\tCS1\tCS2\tCST");
     int i;
     for (i = -9; i < 10; i++) {
       fprintf (fp, "\tA%d", i);
     }
     fprintf (fp, "\n");
- 
+    */
 
     oos_initialise_session(gv);
     while (gv->block < gv->subjects_per_experiment) {
