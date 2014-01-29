@@ -457,18 +457,31 @@ void rng_analyse_group_data(OosVars *gv, FILE *fp, RngScores *zscore_ref_means, 
     // TO DO: Also calculate SD for each variable:
 
    if (fp != NULL) {
-        RngScores z_scores;
-        fprintf(fp, "---\tR\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
+     if (fp != NULL) {
+      RngScores z_scores, z_score_sd;
+ 
+ 	//        fprintf(fp, "---\tR\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
+ 	// print rate first
+ 	// fprintf(fp, "---\trate\tR\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
         fprintf(fp, "means:\t");
-	fprint_rng_scores(fp, &(task_data->group_means));
-
-        fprintf(fp, "SD:\t");
-	fprint_rng_scores(fp, &(task_data->group_sd));
-
-        fprintf(fp, "z-scr:\t");
+ 	fprintf(fp, "%d\t", task_data->params.generation_period);// print rate 
+  	fprint_rng_scores(fp, &(task_data->group_means));
+  
+	fprintf(fp, "SD:\t");
+ 	fprintf(fp, "%d\t", task_data->params.generation_period);// print rate 
+  	fprint_rng_scores(fp, &(task_data->group_sd));
+  
+	fprintf(fp, "mn(Z):\t");
+ 	fprintf(fp, "%d\t", task_data->params.generation_period);// print rate 
         rng_scores_convert(&(task_data->group_means), zscore_ref_means, zscore_ref_sd, &z_scores);
         fprint_rng_scores(fp, &z_scores);
-        fprintf(fp, "\n");
+ 
+	fprintf(fp, "SD(Z):\t");
+	fprintf(fp, "%d\t", task_data->params.generation_period);// print rate 
+	rng_scores_convert(&(task_data->group_sd), zscore_ref_means, zscore_ref_sd, &z_score_sd);
+	fprint_rng_scores(fp, &z_score_sd);
+	fprintf(fp, "\n");
+
     }
 }
 
