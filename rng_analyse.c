@@ -353,11 +353,11 @@ void fprint_rng_scores(FILE *fp, RngScores *score)
 void rng_print_scores(FILE *fp, RngScores *scores)
 {
     if (fp != NULL) {
-      // fprintf(fp, "  R\t RNG\t  TPI\t  RG\tAssociates");
-      fprintf(fp, "R\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
-      // fprintf(fp, "CS1\tCS2\tCST\n");
+     
+      // fprintf(fp, "R\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
+     
       fprint_rng_scores(fp, scores);
-      fprintf(fp, "\n");
+      // fprintf(fp, "\n");
     }
 }
 
@@ -367,7 +367,7 @@ void rng_analyse_subject_responses(FILE *fp, OosVars *gv, int id)
 
     subject = &(((RngData *)gv->task_data)->trial[id]);
 
-    rng_print_subject_sequence(fp, subject, gv->trials_per_subject);
+    // rng_print_subject_sequence(fp, subject, gv->trials_per_subject);
     rng_score_subject_data(subject, gv->trials_per_subject);
     rng_print_scores(fp, &(subject->scores));
 }
