@@ -15,8 +15,8 @@
 # Z-scores and SDs need to be processed using 'data - simulations3.ods' spreadsheet
 
 
-echo '---	rate	R	RNG	RG	CS1	CS2	CST	Associates' >> simulation4_summary.txt
-echo 'R	RNG	RG	CS1	CS2	CST	A-9	A-8	A-7	A-6	A-5	A-4	A-3	A-2	A-1	A0	A1	A2	A3	A4	A5	A6	A7	A8	A9' >> simulation4_data.txt
+echo '---	rate	R	RNG	RG	CS1	CS2	CST	Associates' >> simulation3_summary.txt
+echo 'R	RNG	RG	CS1	CS2	CST	A-9	A-8	A-7	A-6	A-5	A-4	A-3	A-2	A-1	A0	A1	A2	A3	A4	A5	A6	A7	A8	A9' >> simulation3_data.txt
 
 
 # condition - 40/3.0
