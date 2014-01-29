@@ -265,12 +265,12 @@ RngDataset dataset_jahanshahi_1998 = {
 
 
 /* Control data for calculating Z scores in non-X model... pseudorandom algorithm, set size [0 - 9] n=10,000 */
-
+/*                                              R,     RNG,   TPI,   RG,   CS1,   CS2,   CST,  Associates */
 RngScores reference_montecarlo_means =  {TRUE,  1.998, 0.242, 0.000, 8.99, 26.06, 22.39, 48.44, 
 			{0.010,	0.020,	0.030,	0.040,	0.050,	0.060,	0.070,	0.080,	0.090,	0.100,	0.090,	0.080,	0.070,	0.060,	0.050,	0.040,	0.030,	0.020,	0.010, }
 };
 
-
+/*                                             R,     RNG,    TPI,   RG,   CS1,  CS2,  CST, Associates */
 RngScores reference_montecarlo_sd    =  {TRUE, 0.940, 0.026, 0.010, 0.331, 9.289, 8.337, 11.621,
 			{0.010, 0.014,	0.016,	0.019,	0.021,	0.023,	0.025,	0.027,	0.029,	0.030,	0.028,	0.027,	0.026,	0.023,	0.021,	0.019,	0.016,	0.014,	0.010, }
 };
