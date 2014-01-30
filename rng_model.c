@@ -415,7 +415,7 @@ static ClauseType *select_weighted_schema(OosVars *gv, long latest_response)
     double weighted_sum;
     static Boolean clockwise = TRUE;
     int i;
-
+    long latest_response;
 
 
     /* ------------------OLD TEMPERATURE EQUATIONS ---------------- */
