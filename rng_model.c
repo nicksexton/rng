@@ -436,7 +436,7 @@ static ClauseType *select_weighted_schema(OosVars *gv, long latest_response)
 	i = -1;
 	do {
 	    i++;
-	    limit -=  task_data->trial[gv->block].my_schema_strengths[latest_response][i]);
+	    limit -=  task_data->trial[gv->block].my_schema_strengths[latest_response][i];
 
 	} while ((limit > 0) && (i < 10));
 
