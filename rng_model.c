@@ -415,45 +415,25 @@ static ClauseType *select_weighted_schema(OosVars *gv, long latest_response)
     double weighted_sum;
     static Boolean clockwise = TRUE;
     int i;
-    // long latest_response;
+    long latest_response;
 
-    // 
-
-    
-    
-
-    /* -------------- NEW (BROKEN) TEMPERATURE EQUATIONS ---------------- */
-    /* 
-    if (clockwise) {
-	weighted_sum = 0;
-	for (i = 0; i < 10; i++) {
-	  weighted_sum += exp(-schema_strengths[latest_response][i]/task_data->params.temperature);
-	}
-
-	limit = weighted_sum * random_uniform(0.0, 1.0);
-	i = -1;
-	do {
-	    i++;
-	    limit -= exp(-schema_strengths[latest_response][i]/task_data->params.temperature);
-	} while ((limit > 0) && (i < 10));
-
-
-    }
-    */
 
     /* ------------------OLD TEMPERATURE EQUATIONS ---------------- */
 
     if (clockwise) {
 	weighted_sum = 0;
 	for (i = 0; i < 10; i++) {
-	    weighted_sum += exp(task_data->params.temperature*schema_strengths[latest_response][i]);
+	  // removed temperature parameter
+	  // weighted_sum += exp(task_data->params.temperature*schema_strengths[latest_response][i]);
+	  weighted_sum += schema_strengths[latest_response][i];
 	}
 
 	limit = weighted_sum * random_uniform(0.0, 1.0);
 	i = -1;
 	do {
 	    i++;
-	    limit -= exp(task_data->params.temperature*schema_strengths[latest_response][i]);
+	    // limit -= exp(task_data->params.temperature*schema_strengths[latest_response][i]);
+	    limit -= schema_strengths[latest_response][i];
 	} while ((limit > 0) && (i < 10));
 
 
