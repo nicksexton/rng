@@ -7,7 +7,6 @@
 
 #define LINE_SEP 20
 #define BAR_SIZE 400
-#define WM_DISPLAY_ACTIVATION_FOR_CYCLES 1
 
 /******************************************************************************/
 
@@ -73,11 +72,6 @@ void browser_draw_cairo(cairo_t *cr, OosVars *gv, int width, int height)
 		
                 y++;
             }
-
-	    
-	      
-
-
             else {
                 cairox_text_parameters_set(&p, 5, y * LINE_SEP, PANGOX_XALIGN_LEFT, PANGOX_YALIGN_CENTER, 0.0);
                 g_snprintf(buffer, 1024, "%s:", tmpb->name);
@@ -90,36 +84,8 @@ void browser_draw_cairo(cairo_t *cr, OosVars *gv, int width, int height)
                     		    cairox_paint_pango_text(cr, &p, layout, buffer);
 
                     cairo_set_line_width(cr, 1.0);
-
-		    /* Code for WM buffer only (indicates successful/failed WM retrieval in red/green */
-		    /* Exception for displaying WM buffer */
-		    if (tmpb->id == 22) {
-		      if ((gv->cycle - ct->last_retrieval_timestamp) < WM_DISPLAY_ACTIVATION_FOR_CYCLES) {
-
-			if (ct->last_retrieval_success == TRUE) {
-			  cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
-			}
-			else if (ct->last_retrieval_success == FALSE) {
-			  cairo_set_source_rgb(cr, 0.6, 0.0, 0.0);
-			}
-		      }
-		      else {
-			if (ct->last_retrieval_success == TRUE) {
-			  cairo_set_source_rgb(cr, 0.0, 0.4, 0.0);
-			}
-			else if (ct->last_retrieval_success == FALSE) {
-			  cairo_set_source_rgb(cr, 0.3, 0.0, 0.0);
-			}
-		      }
-		      cairo_rectangle(cr, width-20-BAR_SIZE, (y-0.5) * LINE_SEP, (0.66 + (ct->activation / 4)) * BAR_SIZE, LINE_SEP-2);
-		    }
-		    /* All other buffers */
-		    else {
-		      cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-		      cairo_rectangle(cr, width-20-BAR_SIZE, (y-0.5) * LINE_SEP, ct->activation * BAR_SIZE, LINE_SEP-2);
-		    }
-
-                    
+                    cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+                    cairo_rectangle(cr, width-20-BAR_SIZE, (y-0.5) * LINE_SEP, ct->activation * BAR_SIZE, LINE_SEP-2);
                     cairo_fill(cr);
                     cairo_set_source_rgb(cr, 0.7, 0.7, 0.7);
                     cairo_rectangle(cr, width-20-BAR_SIZE, (y-0.5) * LINE_SEP, BAR_SIZE, LINE_SEP-2);

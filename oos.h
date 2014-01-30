@@ -30,7 +30,7 @@ typedef enum message_type {
 extern char *oos_message_type_name[MT_MAX];
 
 typedef enum buffer_decay_prop {
-  BUFFER_DECAY_NONE, BUFFER_DECAY_FIXED, BUFFER_DECAY_LINEAR, BUFFER_DECAY_QUADRATIC, BUFFER_DECAY_EXPONENTIAL, BUFFER_DECAY_WEIBULL, BUFFER_DECAY_RECENCY, BUFFER_DECAY_ACT_R
+  BUFFER_DECAY_NONE, BUFFER_DECAY_FIXED, BUFFER_DECAY_LINEAR, BUFFER_DECAY_QUADRATIC, BUFFER_DECAY_EXPONENTIAL, BUFFER_DECAY_WEIBULL, BUFFER_DECAY_RECENCY
   /* BUFFER_DECAY_RECENCY property only implemented for unlimited capacity buffers! */
 
 } BufferDecayProp;
@@ -50,9 +50,6 @@ typedef enum buffer_access_prop {
 typedef struct timestamped_clause_list {
     ClauseType *head;
     long timestamp;
-    long total_activations; // counter used by ACT-R base level learning equations
-    Boolean last_retrieval_success; // for xrng display only  
-    long last_retrieval_timestamp; // for xrng display only
     double activation;
     struct timestamped_clause_list *tail;
 } TimestampedClauseList;

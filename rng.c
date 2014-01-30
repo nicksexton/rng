@@ -1,9 +1,6 @@
 #include "rng.h"
 #include "oos.h"
-
-
-/* comment if volatile */
- #include "rng_subject_data.h"
+#include "rng_subject_data.h"
 
 /******************************************************************************/
 
@@ -17,10 +14,8 @@ int main(int argc, char **argv)
 
 
     /* task set temp, mon efficiency, wm update rate, WM decay rate, generation period */
-    RngParameters pars = {23.0, 0.26, 1.0, 0.0, 8, {0.60, 0.55, 0.40, -0.25, 0.87}};
-    
-    
-   
+    RngParameters pars = {23.0, 0.26, 1.0, 19, 8};
+
     while ((c = getopt (argc, argv, "t:m:u:d:g:")) != -1) {
       switch (c) {
       case 't' : 
@@ -35,7 +30,7 @@ int main(int argc, char **argv)
 	pars.wm_update_rate = atof (optarg);
 	break;
       case 'd' :
-	pars.wm_threshold = atof (optarg);
+	pars.wm_decay_rate = atoi (optarg);
 	break;
       case 'g' :
 	pars.generation_period = atoi (optarg);
@@ -70,7 +65,6 @@ int main(int argc, char **argv)
           rng_analyse_group_data(gv, stdout, &reference_montecarlo_means, &reference_montecarlo_sd);
   
  	//now clean up and finish
-
         rng_globals_destroy((RngData *)gv->task_data);
         oos_globals_destroy(gv);
     }

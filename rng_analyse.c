@@ -353,9 +353,9 @@ void fprint_rng_scores(FILE *fp, RngScores *score)
 void rng_print_scores(FILE *fp, RngScores *scores)
 {
     if (fp != NULL) {
-      
+     
       // fprintf(fp, "R\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
-      
+     
       fprint_rng_scores(fp, scores);
       // fprintf(fp, "\n");
     }
@@ -486,8 +486,6 @@ void rng_analyse_group_data(OosVars *gv, FILE *fp, RngScores *zscore_ref_means, 
 }
 
 
-
-
 /******************************************************************************/
 
 void rng_scores_convert(RngScores *means, RngScores *reference_means, RngScores *reference_sd, RngScores *z_scores)
@@ -601,6 +599,12 @@ double rng_global_fit_max(RngScores *empirical_data, RngScores *reference_sd, Rn
     }
 
 
+    /* associate -2 */
+    if (empirical_data->associates[7] != 0) {
+      error_z_score = ((model->associates[7] - empirical_data->associates[7]) / reference_sd->associates[7]);
+      fit += (error_z_score * error_z_score);
+    }
+
     /* associate -1 */
     if (empirical_data->associates[8] != 0) {
       error_z_score = ((model->associates[8] - empirical_data->associates[8]) / reference_sd->associates[8]);
@@ -615,6 +619,12 @@ double rng_global_fit_max(RngScores *empirical_data, RngScores *reference_sd, Rn
     /* associate +1 */
     if (empirical_data->associates[10] != 0) {
       error_z_score = ((model->associates[10] - empirical_data->associates[10]) / reference_sd->associates[10]);
+      fit += (error_z_score * error_z_score);
+    }
+
+    /* associate +2 */
+    if (empirical_data->associates[10] != 0) {
+      error_z_score = ((model->associates[11] - empirical_data->associates[11]) / reference_sd->associates[11]);
       fit += (error_z_score * error_z_score);
     }
 
