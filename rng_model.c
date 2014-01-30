@@ -419,30 +419,25 @@ static ClauseType *select_weighted_schema(OosVars *gv, long latest_response)
     double weighted_sum;
     static Boolean clockwise = TRUE;
     int i;
+
     // long latest_response;
 
-    // 
 
-    
-
-    /* ------------------OLD TEMPERATURE EQUATIONS ---------------- */
-    // see simulation_2 for new temperature equations
 
     if (clockwise) {
 	weighted_sum = 0;
 	for (i = 0; i < 10; i++) {
-	    weighted_sum += exp(task_data->params.temperature*
-				task_data->trial[gv->block].
-				  my_schema_strengths[latest_response][i]);
+
+	    weighted_sum += task_data->trial[gv->block].my_schema_strengths[latest_response][i];
+
 	}
 
 	limit = weighted_sum * random_uniform(0.0, 1.0);
 	i = -1;
 	do {
 	    i++;
-	    limit -= exp(task_data->params.temperature*
-			 task_data->trial[gv->block].
-			   my_schema_strengths[latest_response][i]);
+	    limit -=  task_data->trial[gv->block].my_schema_strengths[latest_response][i]);
+
 	} while ((limit > 0) && (i < 10));
 
 
