@@ -457,6 +457,7 @@ void rng_analyse_group_data(OosVars *gv, FILE *fp, RngScores *zscore_ref_means, 
     // TO DO: Also calculate SD for each variable:
 
    if (fp != NULL) {
+
      RngScores z_scores, z_score_sd;
 
 	//        fprintf(fp, "---\tR\tRNG\tRG\tCS1\tCS2\tCST\tAssociates\n");
@@ -480,9 +481,9 @@ void rng_analyse_group_data(OosVars *gv, FILE *fp, RngScores *zscore_ref_means, 
         rng_scores_convert(&(task_data->group_sd), zscore_ref_means, zscore_ref_sd, &z_score_sd);
         fprint_rng_scores(fp, &z_score_sd);
         fprintf(fp, "\n");
-    }
-}
+   }
 
+}
 
 
 
