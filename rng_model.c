@@ -45,7 +45,8 @@ dual-task experiment.
 #define MATCH_THRESHOLD 0.80
 
 // IMPORTANT! Timestamps on WM items need to correspond with when item was generated, not proposed into the RB
-#define SET_SWITCH_LATENCY 4 // number of cycles before MONITORING tries a new set
+// #define SET_SWITCH_LATENCY 4 // number of cycles before MONITORING tries a new set
+#define SET_SWITCH_LATENCY 2 // tried on 02/02/14 to get randomness check a bit better
 
 
 /* slow activation, only single thing active at a time */
@@ -97,11 +98,6 @@ dual-task experiment.
 static int schema_counts[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #endif
 
-/* OLD schema selection strength */
-// theoretical idea is that effortful schemas are higher weighted eg. +/-2, +/-3, +/-4 etc
-static double strength[10] = {0.1, 0.15, 0.18, 0.05, 0.05, 0.05, 0.18, .15, .10, 0.08};
-
-/* NEW schema selection strengths */
 
 
 #ifndef SCHEMA_BIAS
@@ -451,48 +447,30 @@ static Boolean check_random(OosVars *gv, long r)
 	}
        
 
+	// ----------- RULE: check for +/-1 schema
+	/*
+	if (gaps[0] == 1) {
+	  printf ("monitoring: g1 == 1\n"); // debug
+	  return (FALSE);
+	}
+	
+	if (gaps[0] == -1) {
+	  printf ("monitoring: g1 == -1\n"); // debug
+	  return (FALSE);
+	}
+	*/
 
 	
-	
-	
+	// ----------- RULE: check for repeated schema use --------------- //
 	  i = 1;
-	  
-	  while (gaps[i] != -99) {   // ie gaps[] must contain at least two gaps	  
+	  while (gaps[i] != -99) {   // ie gaps[] must contain at least two gaps	  	    
 	    if (gaps[i] == gaps[0]) { // if proposed schema matches a previous schema
-	      printf ("monitoring: matches previous schema use in WM\n");
+	      printf ("\nmonitoring: matches previous schema use in WM");
 	      return (FALSE);
-	    }
+	    }	
 	    i ++;
 	  }
-    
-	  /* -------------- monitoring rules for simulation 1.0 (and dissertation)
-	// -------------- CHECK AFTER 1 CYCLE  --------------- 
-	      // if (gv->cycle - get_response_buffer_timestamp(gv) > 1) {
-		if (g1 == 1) {
-		  // printf ("monitoring: g1 == 1\n"); // debug
-		  return (FALSE);
-		}
 
-		if (g1 == -1) {
-		  // printf ("monitoring: g1 == -1\n"); // debug
-		  return (FALSE);
-		}
-		// }
-
-
-		// ----------- CHECK AFTER 3 CYCLE --------------- 
-	      
-		// if (gv->cycle - get_response_buffer_timestamp(gv) > 3) {
-		  if (g1 == g2) {
-		    // printf ("monitoring: g1 == g2\n"); // debug
-		    return (FALSE);
-		  }
-		  // }
-	      
-		  // ------------ END MONITORING RULES ----------------- 
-
-		  */
-	
 	
 
 	return(result);
