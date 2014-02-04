@@ -46,7 +46,8 @@ typedef struct rng_parameters {
     double temperature;
     double monitoring_efficiency;
     double wm_update_rate;
-    int    wm_decay_rate;
+  // int    wm_decay_rate;
+    double wm_threshold;
   //  BufferDecayProp wm_decay_type;
     int    generation_period; 
   // ActParameters activation_parameters;

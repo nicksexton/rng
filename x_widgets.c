@@ -14,9 +14,10 @@
 
 #include "xrng.h"
 #include "lib_cairox.h"
-#include "rng_subject_data.h"
 #include <ctype.h>
 #include <cairo-pdf.h>
+#include "rng_subject_data.h"
+
 
 #define NUMBER_OF_METRICS 6
 #define Y_SCALE 0.5
@@ -26,13 +27,14 @@
 // char *stat_label[4] = {"R", "RNG", "TPI", "RG"};
 char *stat_label[NUMBER_OF_METRICS] = {"R", "RNG", "RG", "CS1", "CS2", "CST"};
 
+extern RngScores reference_montecarlo_means, reference_montecarlo_sd;
 
 /******************************************************************************/
 
 static void cairo_table_row_headings(cairo_t *cr, PangoLayout *layout, double x0, double y0, double dy)
 {
     CairoxTextParameters p;
-    char buffer[32];
+    // char buffer[32];
     double y;
     int i;
 
@@ -75,7 +77,7 @@ static void cairo_table_column(cairo_t *cr, PangoLayout *layout, double x0, doub
     CairoxTextParameters p;
     char buffer[32];
     double y;
-    int i;
+    // int i;
 
     y = y0;
 
@@ -650,7 +652,7 @@ static void cairo_draw_second_order_stats(cairo_t *cr, double x0, double x1, dou
 
 static void cairo_draw_second_order_stats_linegraph(cairo_t *cr, double x0, double x1, double y0, double y1, RngScores *scores, RngScores *sd, int n, double offset, int colour)
 {
-  double x, y, dy;
+  double x, y; 
   int k;
   
 
@@ -994,7 +996,7 @@ static void cairo_draw_vary_period_axis(cairo_t *cr, PangoLayout *layout, double
     }
 }
 
-static void cairo_draw_vary_decay_axis(cairo_t *cr, PangoLayout *layout, double x0, double x1, double y0, double y1, XGlobals *globals)
+static void cairo_draw_vary_threshold_axis(cairo_t *cr, PangoLayout *layout, double x0, double x1, double y0, double y1, XGlobals *globals)
 {
     CairoxTextParameters p;
     char buffer[16];
@@ -1007,7 +1009,7 @@ static void cairo_draw_vary_decay_axis(cairo_t *cr, PangoLayout *layout, double 
         x = x0 + 10 + (x1 - x0 - 20) *  i / 10.0;
         cairox_paint_line(cr, 1.0, x, y1-3, x, y1+3);
         cairox_text_parameters_set(&p, x, y1+4, PANGOX_XALIGN_CENTER, PANGOX_YALIGN_TOP, 0.0);
-        g_snprintf(buffer, 16, "%d", i * 20);
+        g_snprintf(buffer, 16, "%4.2f", -0.5 + (i * 0.1));
         cairox_paint_pango_text(cr, &p, layout, buffer);
     }
 }
@@ -1025,7 +1027,7 @@ static void cairo_draw_vary_update_axis(cairo_t *cr, PangoLayout *layout, double
         x = x0 + 10 + (x1 - x0 - 20) *  i / 10.0;
         cairox_paint_line(cr, 1.0, x, y1-3, x, y1+3);
         cairox_text_parameters_set(&p, x, y1+4, PANGOX_XALIGN_CENTER, PANGOX_YALIGN_TOP, 0.0);
-        g_snprintf(buffer, 16, "%4.2f", 1.0 - (i * 0.05));
+        g_snprintf(buffer, 16, "%4.2f", 1.0 - (i * 0.1));
         cairox_paint_pango_text(cr, &p, layout, buffer);
     }
 }
@@ -1043,7 +1045,7 @@ static void cairo_draw_vary_monitoring_axis(cairo_t *cr, PangoLayout *layout, do
         x = x0 + 10 + (x1 - x0 - 20) *  i / 10.0;
         cairox_paint_line(cr, 1.0, x, y1-3, x, y1+3);
         cairox_text_parameters_set(&p, x, y1+4, PANGOX_XALIGN_CENTER, PANGOX_YALIGN_TOP, 0.0);
-        g_snprintf(buffer, 16, "%4.2f", 1.0 - (i * 0.05));
+        g_snprintf(buffer, 16, "%4.2f", 1.0 - (i * 0.1));
         cairox_paint_pango_text(cr, &p, layout, buffer);
     }
 }
@@ -1156,34 +1158,34 @@ static void cairo_draw_parameter_analysis(cairo_t *cr, XGlobals *globals, int wi
         case CANVAS_VARY_PERIOD: {
             cairo_draw_vary_period_axis(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
             cairo_draw_varied_data(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
-            g_snprintf(buffer, 256, "Gen. Period: variable; WM decay rate: %d; Monitoring efficiency: %5.3f; WM update efficiency: %5.3f; Task setting temperature: %d", globals->params.wm_decay_rate, globals->params.monitoring_efficiency, globals->params.wm_update_rate, (int) globals->params.temperature);
+            g_snprintf(buffer, 256, "Gen. Period: variable; WM threshold: %5.3f; Monitoring efficiency: %5.3f; WM update efficiency: %5.3f; Task setting temperature: %d", globals->params.wm_threshold, globals->params.monitoring_efficiency, globals->params.wm_update_rate, (int) globals->params.temperature);
             break;
         }
 
-        case CANVAS_VARY_DECAY: {
-            cairo_draw_vary_decay_axis(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
+        case CANVAS_VARY_THRESHOLD: {
+            cairo_draw_vary_threshold_axis(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
             cairo_draw_varied_data(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
-            g_snprintf(buffer, 256, "Gen. Period: %d; WM decay rate: variable; Mon. effic.: %5.3f; WM update effic.: %5.3f; Task setting temp.: %d", globals->params.generation_period, globals->params.monitoring_efficiency, globals->params.wm_update_rate, (int) globals->params.temperature);
+            g_snprintf(buffer, 256, "Gen. Period: %d; WM threshold: variable; Mon. effic.: %5.3f; WM update effic.: %5.3f; Task setting temp.: %d", globals->params.generation_period, globals->params.monitoring_efficiency, globals->params.wm_update_rate, (int) globals->params.temperature);
             break;
         }
         case CANVAS_VARY_MONITORING: {
             cairo_draw_vary_monitoring_axis(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
             cairo_draw_varied_data(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
-            g_snprintf(buffer, 256, "Gen. Period: %d; WM decay rate: %d; Mon. effic.: variable; WM update effic.: %5.3f; Task setting temp.: %d", globals->params.generation_period, globals->params.wm_decay_rate, globals->params.wm_update_rate, (int) globals->params.temperature);
+            g_snprintf(buffer, 256, "Gen. Period: %d; WM threshold: %5.3f; Mon. effic.: variable; WM update effic.: %5.3f; Task setting temp.: %d", globals->params.generation_period, globals->params.wm_threshold, globals->params.wm_update_rate, (int) globals->params.temperature);
 
             break;
         }
         case CANVAS_VARY_UPDATE: {
             cairo_draw_vary_update_axis(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
             cairo_draw_varied_data(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
-            g_snprintf(buffer, 256, "Gen. Period: %d; WM decay rate: %d; Mon. effic.: %5.3f; WM update effic.: variable; Task setting temp.: %d", globals->params.generation_period, globals->params.wm_decay_rate, globals->params.monitoring_efficiency, (int) globals->params.temperature);
+            g_snprintf(buffer, 256, "Gen. Period: %d; WM threshold: %5.3f; Mon. effic.: %5.3f; WM update effic.: variable; Task setting temp.: %d", globals->params.generation_period, globals->params.wm_threshold, globals->params.monitoring_efficiency, (int) globals->params.temperature);
 
             break;
         }
         case CANVAS_VARY_TEMPERATURE: {
             cairo_draw_vary_temperature_axis(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
             cairo_draw_varied_data(cr, layout, width*0.08, width*0.95, height*0.15, height*0.85, globals);
-            g_snprintf(buffer, 256, "Gen. Period: %d; WM decay rate: %d; Mon. effic.: %5.3f; WM update effic.: %5.3f; Task setting temp.: variable", globals->params.generation_period, globals->params.wm_decay_rate, globals->params.monitoring_efficiency, globals->params.wm_update_rate);
+            g_snprintf(buffer, 256, "Gen. Period: %d; WM threshold: %5.3f; Mon. effic.: %5.3f; WM update effic.: %5.3f; Task setting temp.: variable", globals->params.generation_period, globals->params.wm_threshold, globals->params.monitoring_efficiency, globals->params.wm_update_rate);
 
             break;
         }
@@ -1238,7 +1240,10 @@ static void x_task_run_block(GtkWidget *caller, XGlobals *globals)
     rng_create(globals->gv, &(globals->params));
     rng_initialise_model(globals->gv);
     rng_run(globals->gv);
-    rng_analyse_group_data(globals->gv, NULL, &reference_montecarlo_means, &reference_montecarlo_sd);
+    printf ("ts_temp = %4.2f, mon_eff = %4.2f, wm_update_rate = %4.2f, wm_threshold = %4.2f, gen_period = %d\n", 
+	    globals->params.temperature, globals->params.monitoring_efficiency, globals->params.wm_update_rate, 
+	    globals->params.wm_threshold, globals->params.generation_period);
+    rng_analyse_group_data(globals->gv, stdout, &reference_montecarlo_means, &reference_montecarlo_sd);
     globals->running = FALSE;
     x_draw_canvas1(globals);
 }
@@ -1247,14 +1252,14 @@ static void set_variable_parameter(XGlobals *globals)
 {
     // Note: group_index varies from 0 up to MAX_GROUPS (exclusive)
 
-    if (globals->canvas2_selection == CANVAS_VARY_DECAY) {
-        globals->params.wm_decay_rate = globals->group_index * 10;
+    if (globals->canvas2_selection == CANVAS_VARY_THRESHOLD) {
+      globals->params.wm_threshold = -0.5 + globals->group_index * 0.05;
     }
     else if (globals->canvas2_selection == CANVAS_VARY_MONITORING) {
-        globals->params.monitoring_efficiency = 1.0 - globals->group_index * 0.025;
+        globals->params.monitoring_efficiency = 1.0 - globals->group_index * 0.05;
     }
     else if (globals->canvas2_selection == CANVAS_VARY_UPDATE) {
-        globals->params.wm_update_rate = 1.0 - globals->group_index * 0.025;
+        globals->params.wm_update_rate = 1.0 - globals->group_index * 0.05;
     }
     else if (globals->canvas2_selection == CANVAS_VARY_TEMPERATURE) {
         globals->params.temperature = globals->group_index * 5.0;
@@ -1278,7 +1283,7 @@ static void x_task_run_parameter_study(GtkWidget *caller, XGlobals *globals)
     globals->running = TRUE;
     x_draw_canvas2(globals);
     gtk_main_iteration_do(FALSE);
-    tmp.wm_decay_rate = globals->params.wm_decay_rate;
+    tmp.wm_threshold = globals->params.wm_threshold;
     tmp.monitoring_efficiency = globals->params.monitoring_efficiency;
     tmp.wm_update_rate = globals->params.wm_update_rate;
     tmp.temperature = globals->params.temperature;
@@ -1349,7 +1354,7 @@ static void x_task_run_parameter_study(GtkWidget *caller, XGlobals *globals)
 
     globals->running = FALSE;
     x_draw_canvas2(globals);
-    globals->params.wm_decay_rate = tmp.wm_decay_rate;
+    globals->params.wm_threshold = tmp.wm_threshold;
     globals->params.monitoring_efficiency = tmp.monitoring_efficiency;
     globals->params.wm_update_rate = tmp.wm_update_rate;
     globals->params.temperature = tmp.temperature;
@@ -1522,9 +1527,9 @@ static void x_spin_generation_period(GtkWidget *button, XGlobals *globals)
     globals->params.generation_period = gtk_spin_button_get_value(GTK_SPIN_BUTTON(button));
 }
 
-static void x_spin_wm_decay(GtkWidget *button, XGlobals *globals)
+static void x_spin_wm_threshold(GtkWidget *button, XGlobals *globals)
 {
-    globals->params.wm_decay_rate = gtk_spin_button_get_value(GTK_SPIN_BUTTON(button));
+    globals->params.wm_threshold = gtk_spin_button_get_value(GTK_SPIN_BUTTON(button));
 }
 
 static void x_spin_monitoring_efficiency(GtkWidget *button, XGlobals *globals)
@@ -1541,7 +1546,7 @@ static void x_spin_temperature(GtkWidget *button, XGlobals *globals)
 {
     globals->params.temperature = gtk_spin_button_get_value(GTK_SPIN_BUTTON(button));
 
-    rng_print_schema_selection_probabilities(stdout, globals->params.temperature);
+    // rng_print_schema_selection_probabilities(stdout, globals->params.temperature);
 }
 /*
 static void x_spin_act_self(GtkWidget *button, XGlobals *globals)
@@ -1640,7 +1645,7 @@ static GtkWidget *notepage_basic_results_create(XGlobals *globals)
     gtk_box_pack_start(GTK_BOX(vbox), align, TRUE, TRUE, 0);
     gtk_widget_show(align);
 
-    tmp = gtk_label_new("WM decay rate:");
+    tmp = gtk_label_new("WM threshold:");
     gtk_container_add(GTK_CONTAINER(align), tmp);
     gtk_widget_show(tmp);
 
@@ -1678,9 +1683,9 @@ static GtkWidget *notepage_basic_results_create(XGlobals *globals)
     gtk_box_pack_start(GTK_BOX(vbox), tmp, TRUE, TRUE, 0);
     gtk_widget_show(tmp);
 
-    tmp = gtk_spin_button_new_with_range(0.0, 500.0, 1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(tmp), globals->params.wm_decay_rate);
-    g_signal_connect(G_OBJECT(tmp), "value_changed", G_CALLBACK(x_spin_wm_decay), globals);
+    tmp = gtk_spin_button_new_with_range(-1.0, 1.0, 0.05);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(tmp), globals->params.wm_threshold);
+    g_signal_connect(G_OBJECT(tmp), "value_changed", G_CALLBACK(x_spin_wm_threshold), globals);
     gtk_box_pack_start(GTK_BOX(vbox), tmp, TRUE, TRUE, 0);
     gtk_widget_show(tmp);
 
@@ -1751,7 +1756,7 @@ static GtkWidget *notepage_basic_results_create(XGlobals *globals)
    vbox = gtk_vbox_new(TRUE, 5);
     gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 5);
     gtk_widget_show(vbox);
-
+    
     tmp = gtk_spin_button_new_with_range(0.00, 1.00, 0.01);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(tmp), globals->params.activation_parameters.act_self);
     g_signal_connect(G_OBJECT(tmp), "value_changed", G_CALLBACK(x_spin_act_self), globals);
@@ -1781,8 +1786,8 @@ static GtkWidget *notepage_basic_results_create(XGlobals *globals)
     g_signal_connect(G_OBJECT(tmp), "value_changed", G_CALLBACK(x_spin_persistence), globals);
     gtk_box_pack_start(GTK_BOX(vbox), tmp, TRUE, TRUE, 0);
     gtk_widget_show(tmp);
-    */
 
+    */
     /* The control panel: */
 
 
@@ -1916,10 +1921,10 @@ static void radio_select_generation_period(GtkWidget *caller, XGlobals *globals)
     }
 }
 
-static void radio_select_wm_decay_rate(GtkWidget *caller, XGlobals *globals)
+static void radio_select_wm_threshold(GtkWidget *caller, XGlobals *globals)
 {
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(caller))) {
-        globals->canvas2_selection = CANVAS_VARY_DECAY;
+        globals->canvas2_selection = CANVAS_VARY_THRESHOLD;
         x_draw_canvas2(globals);
     }
 }
@@ -1986,9 +1991,9 @@ static GtkWidget *notepage_parameter_studies_create(XGlobals *globals)
     radio_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
     gtk_widget_show(button);
 
-    button = gtk_radio_button_new_with_label(radio_group, "WM decay rate");
-    g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(radio_select_wm_decay_rate), globals);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), (globals->canvas2_selection == CANVAS_VARY_DECAY));
+    button = gtk_radio_button_new_with_label(radio_group, "WM threshold");
+    g_signal_connect(G_OBJECT(button), "toggled", G_CALLBACK(radio_select_wm_threshold), globals);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), (globals->canvas2_selection == CANVAS_VARY_THRESHOLD));
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 5);
     radio_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
     gtk_widget_show(button);
@@ -2063,7 +2068,7 @@ Boolean rng_widgets_create(XGlobals *globals, OosVars *gv)
         int position = 0;
 
         gtk_window_set_default_size(GTK_WINDOW(globals->window), 800, 600);
-        gtk_window_set_title(GTK_WINDOW(globals->window), "X RNG [Simulation 1.1: 05/08/2013]");
+        gtk_window_set_title(GTK_WINDOW(globals->window), "X RNG [Version 5: 25/01/2013]");
         g_signal_connect(G_OBJECT(globals->window), "delete_event", G_CALLBACK(event_delete), globals);
         g_signal_connect(G_OBJECT(globals->window), "destroy", G_CALLBACK(callback_destroy), globals);
 

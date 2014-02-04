@@ -17,6 +17,9 @@
 #define RECENCY_UPPER_DECAY_THRESHOLD 0.3
 #define DEFAULT_ELEMENT_ACTIVATION 0.85
 
+/* parameter d in ACT-R base level learning equation */
+#define WM_DECAY_CONSTANT 0.5
+
 char *oos_class_name[BOX_TYPE_MAX] = {
     "Process", "Buffer"
 };
@@ -198,6 +201,9 @@ static TimestampedClauseList *timestamped_clause_list_prepend_element(Timestampe
         new->head = element;
         new->timestamp = now;
         new->activation = activation;
+	new->total_activations = 0;
+	new->last_retrieval_success = FALSE;
+	new->last_retrieval_timestamp = 0;
         new->tail = list;
         return(new);
     }
@@ -215,6 +221,9 @@ static TimestampedClauseList *timestamped_clause_list_add_element_to_tail(Timest
         node->head = element;
         node->timestamp = now;
         node->activation = activation;
+	node->total_activations = 0;
+	node->last_retrieval_success = FALSE;
+	node->last_retrieval_timestamp = 0;
         node->tail = NULL;
         if (list == NULL) {
             list = node;
@@ -379,10 +388,7 @@ BoxList *oos_process_create(OosVars *gv, char *name, int id, double x, double y,
     return(new);
 }
 
-/*  BROKEN CODE
-BoxList *oos_buffer_create(OosVars *gv, char *name, int id, double x, double y, BufferDecayProp decay, int decay_constant, BufferCapacityProp capacity, int capacity_constant, BufferExcessProp excess_capacity, BufferAccessProp access, SpreadingActivationToggle spreading_activation, double (*spreading_activation_weights)[10]) 
 
-*/
 
 /* working code */
  BoxList *oos_buffer_create(OosVars *gv, char *name, int id, double x, double y, BufferDecayProp decay, int decay_constant, BufferCapacityProp capacity, int capacity_constant, BufferExcessProp excess_capacity, BufferAccessProp access)
@@ -728,6 +734,7 @@ static void generate_messages(OosVars *gv)
     }
 }
 
+
 /*----------------------------------------------------------------------------*/
 
 
@@ -825,7 +832,7 @@ static void oos_buffer_apply_add_messages(OosVars *gv, BoxList *this)
                 }
             }
             else {
-// fprintf(stdout, "%4d: Adding ", gv->cycle); fprint_clause(stdout, tmp->content); fprintf(stdout, " to %s\n", this->name);
+	      // fprintf(stdout, "%4d: Adding ", gv->cycle); fprint_clause(stdout, tmp->content); fprintf(stdout, " to %s\n", this->name);
 
 
 	      /* RECENCY; adding element steals activation from elements in buffer */
@@ -848,6 +855,37 @@ static void oos_buffer_apply_add_messages(OosVars *gv, BoxList *this)
 	     
                 this->content = timestamped_clause_list_prepend_element(this->content, pl_clause_copy(tmp->content), gv->cycle, stolen_activation); 		
 	      }
+
+
+	      /* ACT-R base level learning equation - adding element re-activates chunk already in WM */
+	      
+	      if (this->decay == BUFFER_DECAY_ACT_R) {
+	
+		TimestampedClauseList *element = NULL;
+		element = this->content; 
+
+		long item_to_look_for = -1;
+		long item_in_wm = -1;
+		pl_is_integer(pl_arg_get(tmp->content, 1), &item_to_look_for);
+		
+
+		while (!(element == NULL)) {
+		  pl_is_integer(pl_arg_get(element->head, 1), &item_in_wm);
+		  if (item_to_look_for == item_in_wm) {
+		    element->timestamp = gv->cycle;
+		    element->total_activations ++;
+		    
+		    
+		    // printf ("chunk %ld, latest activation %ld, total activations %ld\n", item_in_wm, element->timestamp, element->total_activations);
+		  }
+ 
+		  element = element->tail; 
+		}
+
+	      }
+	      
+	     
+
 	      else {
                 // No need to worry about capacity - just prepend the new element:
                 this->content = timestamped_clause_list_prepend_element(this->content, pl_clause_copy(tmp->content), gv->cycle, DEFAULT_ELEMENT_ACTIVATION); 
@@ -883,8 +921,8 @@ static Boolean message_inhibits_target(MessageList *message, long target_id, Cla
     }
 }
 
-static void oos_buffer_apply_activate_messages(OosVars *gv, BoxList *this)
-{
+static void oos_buffer_apply_activate_messages(OosVars *gv, BoxList *this){
+
     if ((this != NULL) && (this->bt = BOX_BUFFER)) {
         TimestampedClauseList *element;
 
@@ -987,19 +1025,12 @@ static Boolean element_survives_decay(OosVars *gv, ClauseType *element, long tim
 	  return (TRUE);
 	  break;
 	}
-         
 
-	  /* code works but is not very sophisticated
-       case BUFFER_DECAY_RECENCY: {
-	 
-	 if (activation < random_uniform(0.0, (10/(double) (1 + decay_constant) ))) {
-	    return (FALSE);
-	 }
+        case BUFFER_DECAY_ACT_R: {
+            return(TRUE);
+            break;
+        } 
 
-	  return (TRUE);
-	  break;
-	}
-	  */
 	  
 
         case BUFFER_DECAY_LINEAR: {
@@ -1041,16 +1072,84 @@ static Boolean element_survives_decay(OosVars *gv, ClauseType *element, long tim
     return(FALSE);
 }
 
+static void process_wm_activation (OosVars *gv, BoxList *this)
+{
+  /* implements good approximation of ACT-R base level learning equations (see Petrov 2007) */
+
+  TimestampedClauseList *chunk = NULL;
+  chunk = this->content;
+
+    
+
+  while (!(chunk == NULL)) {
+          
+      double time_since_last_activation;
+
+      /* Simplified version for d = 0.5 only */
+      /*
+      double first_term;
+      double second_term;
+      
+      time_since_last_activation = gv->cycle - chunk->timestamp;
+
+      // remember to handle case where time_since_last_activation = 0 
+      time_since_last_activation = (time_since_last_activation ? time_since_last_activation : 0.1);
+      
+      first_term = 1 / sqrt (time_since_last_activation);
+      second_term = (2 * (chunk->total_activations - 1)) / 
+		     (sqrt(gv->cycle) + sqrt(time_since_last_activation));
+
+      chunk->activation = log(first_term + second_term);
+
+     
+      chunk = chunk->tail;
+
+      */
+
+      double first_term;
+      double second_numerator;
+      double second_denominator;
+
+      /* generalised version - decay is variable parameter */
+
+      time_since_last_activation = ((gv->cycle - chunk->timestamp) > 0 ? gv->cycle - chunk->timestamp : 0.01);
+
+      // remember to handle case where time_since_last_activation = 0 
+      
+      
+      first_term = pow(time_since_last_activation, -WM_DECAY_CONSTANT);
+      second_numerator = (chunk->total_activations - 1) * 
+	(pow(gv->cycle, (1 - WM_DECAY_CONSTANT)) - pow(time_since_last_activation, (1 - WM_DECAY_CONSTANT)));
+      second_denominator = (1 - WM_DECAY_CONSTANT) * (gv->cycle - time_since_last_activation);
+      
+      second_denominator = (second_denominator > 0 ? second_denominator : 0.01);
+
+      chunk->activation = log(first_term + (second_numerator / second_denominator)); 
+
+      chunk = chunk->tail;
+    }
+
+}
+
+
 static void oos_buffer_apply_decay(OosVars *gv, BoxList *this, BufferDecayProp decay, int decay_constant)
 {
-    if ((this->content != NULL) && (decay != BUFFER_DECAY_NONE)) {
-        TimestampedClauseList *before, *after, *tmp;
+  if (this->content != NULL) {
 
-        before = this->content;
-        after = NULL;
+    if (decay == BUFFER_DECAY_ACT_R) {
+      process_wm_activation (gv, this);
+
+    }
+
+    
+    else if (decay != BUFFER_DECAY_NONE) {
+      TimestampedClauseList *before, *after, *tmp;
+
+      before = this->content;
+      after = NULL;
         
-        while (before != NULL) {
-	    if (element_survives_decay(gv, before->head, before->timestamp, before->activation, decay, decay_constant)) {
+      while (before != NULL) {
+	if (element_survives_decay(gv, before->head, before->timestamp, before->activation, decay, decay_constant)) {
                 after = timestamped_clause_list_add_element_to_tail(after, before->head, before->timestamp, before->activation);
             }
             else {
@@ -1061,7 +1160,8 @@ static void oos_buffer_apply_decay(OosVars *gv, BoxList *this, BufferDecayProp d
             before = tmp;
         }
         this->content = after;
-    }
+      }
+  }
 }
 
 static void oos_component_process_stop_messages(OosVars *gv, BoxList *this)

@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 	pars.wm_update_rate = atof (optarg);
 	break;
       case 'd' :
-	pars.wm_decay_rate = atoi (optarg);
+	pars.wm_threshold = atof (optarg);
 	break;
       case 'g' :
 	pars.generation_period = atoi (optarg);
@@ -59,8 +59,8 @@ int main(int argc, char **argv)
         rng_run(gv);
  	// Report data here
  	/*
- 	printf ("ts_temp = %4.2f, mon_eff = %4.2f, wm_update_rate = %4.2f, wm_decay_rate = %d, gen_period = %d\n", 
- 		pars.temperature, pars.monitoring_efficiency, pars.wm_update_rate, pars.wm_decay_rate, pars.generation_period);
+ 	printf ("ts_temp = %4.2f, mon_eff = %4.2f, wm_update_rate = %4.2f, wm_threshold = %4.2f, gen_period = %d\n", 
+ 		pars.temperature, pars.monitoring_efficiency, pars.wm_update_rate, pars.wm_threshold, pars.generation_period);
  	*/
           rng_analyse_group_data(gv, stdout, &reference_montecarlo_means, &reference_montecarlo_sd);
   
