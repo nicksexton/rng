@@ -2063,7 +2063,7 @@ Boolean rng_widgets_create(XGlobals *globals, OosVars *gv)
         int position = 0;
 
         gtk_window_set_default_size(GTK_WINDOW(globals->window), 800, 600);
-        gtk_window_set_title(GTK_WINDOW(globals->window), "X RNG [Simulation 1.2: 06/08/2013]");
+        gtk_window_set_title(GTK_WINDOW(globals->window), "X RNG [Simulation 4.3 02/02/2014]");
         g_signal_connect(G_OBJECT(globals->window), "delete_event", G_CALLBACK(event_delete), globals);
         g_signal_connect(G_OBJECT(globals->window), "destroy", G_CALLBACK(callback_destroy), globals);
 
