@@ -46,32 +46,12 @@ dual-task experiment.
 
 // IMPORTANT! Timestamps on WM items need to correspond with when item was generated, not proposed into the RB
 // #define SET_SWITCH_LATENCY 4 // number of cycles before MONITORING tries a new set
-#define SET_SWITCH_LATENCY 2 // tried on 02/02/14 to get randomness check a bit better
+#define SET_SWITCH_LATENCY 6 // tried on 02/02/14 to get randomness check a bit better
 
 
-/* slow activation, only single thing active at a time */
+
+/* settings used for dissertation */
 /*
-#define ACT_SELF 0.65		
-#define ACT_NEXT -0.018
-#define ACT_PREV -0.035
-#define ACT_INHI -0.050
-#define PERSISTENCE 0.91
-#define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
-#define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 1 //  debug setting
-*/
-
-/* good settings! */
-/* 
-#define ACT_SELF 0.68		
-#define ACT_NEXT -0.020
-#define ACT_PREV -0.031
-#define ACT_INHI -0.048
-#define PERSISTENCE 0.905
-#define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
-#define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 16 
-*/
-
-/* trying to more evenly balance +1/-1 */
 #define ACT_SELF 0.68		
 #define ACT_NEXT -0.024
 #define ACT_PREV -0.027
@@ -79,8 +59,18 @@ dual-task experiment.
 #define ACT_NEXT_WR -0.026 // activation from next node when wrapping round
 #define ACT_PREV_WR -0.031 // activation from prev node when wrapping round
 #define PERSISTENCE 0.905
+*/
+
+/* trying to more evenly balance +1/-1 */
+#define ACT_SELF 0.67		
+#define ACT_NEXT -0.0235
+#define ACT_PREV -0.0265
+#define ACT_INHI -0.049
+#define ACT_NEXT_WR -0.0265 // activation from next node when wrapping round
+#define ACT_PREV_WR -0.0275 // activation from prev node when wrapping round
+#define PERSISTENCE 0.905
 #define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
-#define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 8 // debug
+#define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 14 // debug
 
 
 
@@ -390,7 +380,7 @@ static Boolean check_random(OosVars *gv, long r)
 	/* Free the template and return the result: */
 	pl_clause_free(template);
 
-	printf ("monitoring: matched WM\n");
+	// printf ("monitoring: matched WM\n");
 
 	return(FALSE);
     }
@@ -436,6 +426,7 @@ static Boolean check_random(OosVars *gv, long r)
 	}
 
 	// debug
+	/*
 	printf ("\nPrevious: ");
 	for (i = 0; previous[i] != -1; i++) {
 	  printf ("%d ", previous[i]);
@@ -445,17 +436,17 @@ static Boolean check_random(OosVars *gv, long r)
 	for (i = 0; gaps[i] != -99; i++) {
 	  printf ("%d ", gaps[i]);
 	}
-       
+	*/
 
 	// ----------- RULE: check for +/-1 schema
 	/*
 	if (gaps[0] == 1) {
-	  printf ("monitoring: g1 == 1\n"); // debug
+	  // printf ("monitoring: g1 == 1\n"); // debug
 	  return (FALSE);
 	}
 	
 	if (gaps[0] == -1) {
-	  printf ("monitoring: g1 == -1\n"); // debug
+	  // printf ("monitoring: g1 == -1\n"); // debug
 	  return (FALSE);
 	}
 	*/
@@ -465,7 +456,7 @@ static Boolean check_random(OosVars *gv, long r)
 	  i = 1;
 	  while (gaps[i] != -99) {   // ie gaps[] must contain at least two gaps	  	    
 	    if (gaps[i] == gaps[0]) { // if proposed schema matches a previous schema
-	      printf ("\nmonitoring: matches previous schema use in WM");
+	      // printf ("\nmonitoring: matches previous schema use in WM");
 	      return (FALSE);
 	    }	
 	    i ++;
@@ -635,35 +626,17 @@ static void apply_set_output(OosVars *gv)
 
 #ifdef SUPERVISORY_ON
 
-    if (!oos_match_above_threshold(gv, BOX_RESPONSE_BUFFER, previous, MATCH_THRESHOLD) && !oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
+
+    // if (!oos_match_above_threshold(gv, BOX_RESPONSE_BUFFER, previous, MATCH_THRESHOLD) && !oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
+
+    // what happens if we relax constraint that apply_set only fires when there is nothing in response buffer...?
+    if (!oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
 
 	/* If we have a previous response to use as a seed, then ...	      */
       if (oos_match(gv, BOX_WORKING_MEMORY, seed)) {
 	    /* If there is also a current schema, then ...		      */
 	  if (oos_match(gv, BOX_CURRENT_SET, current_set)) {
 		/* Apply the current schema to the seed and excite the result */
-
-
-	    /* ------------NS 2013-06-26 this logic can now be dispensed with -------------- */
-	      /* if applying current schema requires wrapping*/
-	    // if (apply_schema(current_set, seed) < 0 || apply_schema(current_set, seed) > 9) {
-		/* on well defined percentage of trials, wrap round */
-	    /*	    
-		    if (SCHEMA_WRAP_TENDENCY > random_uniform (0.0, 1.0)) {
-		content = pl_clause_make_from_string("response(_).");
-		pl_arg_set_to_int(content, 1, apply_schema_wrap(current_set, seed));
-		oos_message_create(gv, MT_EXCITE, BOX_APPLY_SET, BOX_RESPONSE_NODES, content);
-		}
-		else {
-		  oos_message_create(gv, MT_CLEAR, BOX_APPLY_SET, BOX_CURRENT_SET, NULL);
-		}
-	    }
-	      
-	    else {
-	    */
-	    /* -------------------------------------------------------------------------- */
-	      /* otherwise apply schema as normal */
-	    
 
 	      content = pl_clause_make_from_string("response(_).");
 	      pl_arg_set_to_int(content, 1, apply_schema(current_set, seed));
