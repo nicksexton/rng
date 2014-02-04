@@ -1,5 +1,10 @@
-rng
-===
+
+simulation_1.3_randomlogic 
+
+- updating the screwy check_random logic in
+simulations 1.3 and 1.4 that lead to excessive production of +2
+associates
+
 
 supervisory system - random number generation model
 
