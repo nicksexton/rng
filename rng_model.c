@@ -387,14 +387,14 @@ static Boolean check_random(OosVars *gv, long r)
     /* Build the template based on the proposed response: */
     template = pl_clause_make_from_string("response(_,_).");
     pl_arg_set_to_int(template, 1, r);
+
+
     /* If it matches WM, then it isn't random: */
     if (oos_match(gv, BOX_WORKING_MEMORY, template)) {
 	/* Free the template and return the result: */
 	pl_clause_free(template);
 
-
-	// printf ("monitoring: matched WM\n");
-
+	printf ("monitoring: matched WM\n");
 
 	return(FALSE);
     }
@@ -406,38 +406,68 @@ static Boolean check_random(OosVars *gv, long r)
 // #if FALSE
 
 	TimestampedClauseList *contents;
-	long p1, p2;
-	int g1, g2;
-
+	// long p1, p2;
+	// int g1, g2;
+	int i;
+	long previous[20] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+	long gaps[20]     = {-99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 
+			     -99, -99, -99, -99, -99, -99, -99, -99, -99, -99 };
 	contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
 
+	/*
 	if ((contents != NULL) && (contents->tail != NULL)) {
-	    if (pl_is_integer(pl_arg_get(contents->head, 1), &p1) && pl_is_integer(pl_arg_get(contents->tail->head, 1), &p2)) {
+	    if (pl_is_integer(pl_arg_get(contents->head, 1), &p1) && 
+		pl_is_integer(pl_arg_get(contents->tail->head, 1), &p2)) {
 	      g1 = (r - p1);
 	      g2 = (p1 - p2);
+	*/
 
-	      /* -----debug code ----- */
-	      // fprintf(stdout, "Flip: %ld? - %ld - %ld\n", r, p1, p2);
-	      // fprintf(stdout, " Gaps: %d %d\n", g1, g2);
-	      // printf ("Response Buffer timestamp %ld\t", get_response_buffer_timestamp(gv));
-	      // printf ("timestamp now: %d\n", gv->cycle);
 
-	      /* ------ end debug------ */
+	i = 0;
+	while (contents != NULL) {
+	 
+	  pl_is_integer(pl_arg_get(contents->head, 1), &previous[i]);
+	  
+	  if (i == 0) {
+	    gaps[0] = r - previous[i];
+	  }
+	  else {
+	    gaps[i] = previous[i-1] - previous[i];
+	  }
 
-	      
+	  i++;
+	  contents = contents->tail;
+	}
 
-	      /*
-		if (g1 == g2) {
-		  printf ("monitoring: g1 == g2\n"); // debug
-		  return (FALSE);
-		  // result = FALSE;
-		}
-	      */
+	// debug
+	printf ("\nPrevious: ");
+	for (i = 0; previous[i] != -1; i++) {
+	  printf ("%d ", previous[i]);
+	}
 
-	      /* -------------- CHECK RANDOM RULES --------------  */
+	printf ("\nGaps: ");
+	for (i = 0; gaps[i] != -99; i++) {
+	  printf ("%d ", gaps[i]);
+	}
+       
 
-	      /* -------------- CHECK IMMEDIATELY ---------------  */
-	      /*
+
+	
+	
+	
+	  i = 1;
+	  
+	  while (gaps[i] != -99) {   // ie gaps[] must contain at least two gaps	  
+	    if (gaps[i] == gaps[0]) { // if proposed schema matches a previous schema
+	      printf ("monitoring: matches previous schema use in WM\n");
+	      return (FALSE);
+	    }
+	    i ++;
+	  }
+    
+	  /* -------------- monitoring rules for simulation 1.0 (and dissertation)
+	// -------------- CHECK AFTER 1 CYCLE  --------------- 
+	      // if (gv->cycle - get_response_buffer_timestamp(gv) > 1) {
 		if (g1 == 1) {
 		  // printf ("monitoring: g1 == 1\n"); // debug
 		  return (FALSE);
@@ -447,37 +477,23 @@ static Boolean check_random(OosVars *gv, long r)
 		  // printf ("monitoring: g1 == -1\n"); // debug
 		  return (FALSE);
 		}
-	      */
+		// }
 
 
-
-
-	      /* -------------- CHECK AFTER 1 CYCLE  --------------- */
-	      if (gv->cycle - get_response_buffer_timestamp(gv) > 1) {
-		if (g1 == 1) {
-		  // printf ("monitoring: g1 == 1\n"); // debug
-		  return (FALSE);
-		}
-
-		if (g1 == -1) {
-		  // printf ("monitoring: g1 == -1\n"); // debug
-		  return (FALSE);
-		}
-	      }
-
-
-		/* ----------- CHECK AFTER 3 CYCLE --------------- */
+		// ----------- CHECK AFTER 3 CYCLE --------------- 
 	      
-		if (gv->cycle - get_response_buffer_timestamp(gv) > 3) {
+		// if (gv->cycle - get_response_buffer_timestamp(gv) > 3) {
 		  if (g1 == g2) {
 		    // printf ("monitoring: g1 == g2\n"); // debug
 		    return (FALSE);
 		  }
-		}
+		  // }
 	      
-		/* ------------ END MONITORING RULES ----------------- */
-	    }
-	}
+		  // ------------ END MONITORING RULES ----------------- 
+
+		  */
+	
+	
 
 	return(result);
     }
