@@ -3,8 +3,20 @@ Random Number Generation
 
 supervisory system - random number generation model
 
+
 Simulation 3 - simulating the effects of individual differences in
 number schemas on RNG 
+
+cherry-picked commit: simulation_1.3_randomlogic_1 
+aims: want supervisory and contention scheduling to *interact* a bit more
+- changed parameter settings for spreading activation 
+- changed parameter setting for EXCITE strength (oos.c) - much slower
+- changed set switch latency parameter to give activation time to do its thing
+- changed APPLY_SET rule such that it still activates response nodes even when there is a response in buffer
+
+
+
+
 
 Uses same assumtions about working memory as Simulation 2 
 

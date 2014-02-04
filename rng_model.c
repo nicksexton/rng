@@ -45,13 +45,15 @@ dual-task experiment.
 #define MATCH_THRESHOLD 0.80
 
 // IMPORTANT! Timestamps on WM items need to correspond with when item was generated, not proposed into the RB
-#define SET_SWITCH_LATENCY 4 // number of cycles before MONITORING tries a new set
+
+
+// #define SET_SWITCH_LATENCY 4 // number of cycles before MONITORING tries a new set
+#define SET_SWITCH_LATENCY 6 // tried on 02/02/14 to get randomness check a bit better
 
 
 
-
-
-/* trying to more evenly balance +1/-1 */
+/* settings used for dissertation */
+/*
 #define ACT_SELF 0.68		
 #define ACT_NEXT -0.025
 #define ACT_PREV -0.026
@@ -59,11 +61,23 @@ dual-task experiment.
 #define ACT_NEXT_WR -0.026 // activation from next node when wrapping round
 #define ACT_PREV_WR -0.031 // activation from prev node when wrapping round
 #define PERSISTENCE 0.905
+*/
+
+
+#define ACT_SELF 0.67		
+#define ACT_NEXT -0.0235
+#define ACT_PREV -0.0265
+#define ACT_INHI -0.049
+#define ACT_NEXT_WR -0.0265 // activation from next node when wrapping round
+#define ACT_PREV_WR -0.0275 // activation from prev node when wrapping round
+#define PERSISTENCE 0.905
 #define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
-#define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 8 // debug
+#define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 14 // debug
+
 #define WM_RETRIEVAL_NOISE 0.0
 #define WM_RETRIEVAL_SPREAD 0.15
 #define WM_RETRIEVAL_LATENCY_SCALE 4
+
 
 
 
@@ -552,6 +566,7 @@ static Boolean check_random(OosVars *gv, long r)
 
     /* If it matches WM, then it isn't random: */
 
+
   /*
   if (match_item_in_wm(gv, r) && 
       ((gv->cycle - response_buffer_timestamp) >= r_latency) ) {
@@ -559,6 +574,7 @@ static Boolean check_random(OosVars *gv, long r)
     printf ("monitoring: matched WM after %4.2f cycles\n", r_latency);
       
        return(FALSE);
+
     }
     else {
 	Boolean result = TRUE;
@@ -622,6 +638,7 @@ static Boolean check_random(OosVars *gv, long r)
 	    buffer = NULL;
 	  }
 	
+
 	}
 	/*
 	printf ("working memory contents: ");
@@ -635,6 +652,7 @@ static Boolean check_random(OosVars *gv, long r)
 	printf ("\n");
 	*/
 
+
 	for (i=0; i < 10; i++) { 
 	  if (previous[i] == -1) {
 	    break;
@@ -644,6 +662,7 @@ static Boolean check_random(OosVars *gv, long r)
 	  if ((gv->cycle - response_buffer_timestamp) >= latency[i]) {
 	    if ((previous[i] > 0) && (r == previous[i])) {
 	      // printf ("monitoring: item %ld matched WM position %d, after %4.2f cycles\n", r, i, latency[i]); // debug
+
 	      return (FALSE);
 	    }
 	  }
@@ -863,7 +882,11 @@ static void apply_set_output(OosVars *gv)
 
 #ifdef SUPERVISORY_ON
 
-    if (!oos_match_above_threshold(gv, BOX_RESPONSE_BUFFER, previous, MATCH_THRESHOLD) && !oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
+
+    // if (!oos_match_above_threshold(gv, BOX_RESPONSE_BUFFER, previous, MATCH_THRESHOLD) && !oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
+
+    // what happens if we relax constraint that apply_set only fires when there is nothing in response buffer...?
+    if (!oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
 
 	/* If we have a previous response to use as a seed, then ...	      */
       // if (oos_match(gv, BOX_WORKING_MEMORY, seed)) {
