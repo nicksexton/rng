@@ -7,9 +7,16 @@
 #include <gsl/gsl_randist.h>
 
 
-/* quite good settings */
-#define STRENGTH_EXCITE 4
+/* quite good settings - dissertation*/
+// #define STRENGTH_EXCITE 4
+// #define STRENGTH_INHIBIT -8
+
+// new settings - trying to have excitation (at least, from apply set) exert a steadier influence
+#define STRENGTH_EXCITE 0.35
 #define STRENGTH_INHIBIT -8
+
+
+
 
 /* RECENCY_CONSTANT - proportion of activation new item entering
    buffer steals from existing items */

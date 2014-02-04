@@ -45,13 +45,16 @@ dual-task experiment.
 #define MATCH_THRESHOLD 0.80
 
 // IMPORTANT! Timestamps on WM items need to correspond with when item was generated, not proposed into the RB
-#define SET_SWITCH_LATENCY 4 // number of cycles before MONITORING tries a new set
 
 
 
+// #define SET_SWITCH_LATENCY 4 // number of cycles before MONITORING tries a new set
+#define SET_SWITCH_LATENCY 6 // tried on 02/02/14 to get randomness check a bit better
 
 
-/* trying to more evenly balance +1/-1 */
+
+/* settings used for dissertation */
+/*
 #define ACT_SELF 0.68		
 #define ACT_NEXT -0.025
 #define ACT_PREV -0.026
@@ -59,11 +62,24 @@ dual-task experiment.
 #define ACT_NEXT_WR -0.026 // activation from next node when wrapping round
 #define ACT_PREV_WR -0.031 // activation from prev node when wrapping round
 #define PERSISTENCE 0.905
+*/
+
+
+#define ACT_SELF 0.67		
+#define ACT_NEXT -0.0235
+#define ACT_PREV -0.0265
+#define ACT_INHI -0.049
+#define ACT_NEXT_WR -0.0265 // activation from next node when wrapping round
+#define ACT_PREV_WR -0.0275 // activation from prev node when wrapping round
+#define PERSISTENCE 0.905
 #define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
-#define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 8 // debug
-#define WM_RETRIEVAL_NOISE 0.0
-#define WM_RETRIEVAL_SPREAD 0.15
-#define WM_RETRIEVAL_LATENCY_SCALE 4
+#define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 14 // debug
+
+/* not needed in simulation 4?? */
+// #define WM_RETRIEVAL_NOISE 0.0
+// #define WM_RETRIEVAL_SPREAD 0.15
+// #define WM_RETRIEVAL_LATENCY_SCALE 4
+
 
 
 
@@ -399,13 +415,10 @@ static Boolean check_random(OosVars *gv, long r)
 	pl_clause_free(template);
 
 
-	// printf ("monitoring: matched WM\n");
-
-
 	return(FALSE);
     }
     else {
-	Boolean result = TRUE;
+      // Boolean result = TRUE;
 
 	pl_clause_free(template);
 
@@ -415,73 +428,63 @@ static Boolean check_random(OosVars *gv, long r)
 	// long p1, p2;
 	// int g1, g2;
 
+	long previous[20] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+			     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1  };
+	long gaps[20] = {-99, -99, -99, -99, -99, -99, -99, -99, -99, -99, 
+		       -99, -99, -99, -99, -99, -99, -99, -99, -99, -99 };
+
 	contents = oos_buffer_get_contents(gv, BOX_WORKING_MEMORY);
 
-	/*
-	if ((contents != NULL) && (contents->tail != NULL)) {
-	    if (pl_is_integer(pl_arg_get(contents->head, 1), &p1) && pl_is_integer(pl_arg_get(contents->tail->head, 1), &p2)) {
-	      g1 = (r - p1);
-	      g2 = (p1 - p2);
-	*/
 
-	long previous[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
-	int gap[10] = {-99, -99, -99, -99, -99, -99, -99, -99, -99, -99 };
 	
 	int i = 0;
 	while (contents != NULL) {
 	  pl_is_integer(pl_arg_get(contents->head, 1), &previous[i]);
 	  if (i == 0) { 
-	    gap[0] = r - previous[0];
+	    gaps[0] = r - previous[0];
 	  }
 	  else {
-	    gap[i] = previous[i] - previous[i-1];
+	    gaps[i] = previous[i-1] - previous[i];
 	  }
 
+	  i++;
 	  contents = contents->tail;
 	}
 	     
 	      /* -------------- CHECK RANDOM RULES --------------  */
 
-	      /* -------------- CHECK IMMEDIATELY ---------------  */
-	     
 
-
-	      /* -------------- CHECK AFTER 1 CYCLE  --------------- */
-	      /*
-	      if (gv->cycle - get_response_buffer_timestamp(gv) > 1) {
-		if (g1 == 1) {
-		  // printf ("monitoring: g1 == 1\n"); // debug
-		  return (FALSE);
-		}
-
-		if (g1 == -1) {
-		  // printf ("monitoring: g1 == -1\n"); // debug
-		  return (FALSE);
-		}
-	      }
-
-	      */
-		/* ----------- CHECK AFTER 2 CYCLE --------------- */
-	/*
-		if (gv->cycle - get_response_buffer_timestamp(gv) > 2) {
-		  if (g1 == g2) {
-		    // printf ("monitoring: g1 == g2\n"); // debug
-		    return (FALSE);
-		  }
-		}
-	*/
-      
-	for (i = 0; gap[i] != -99; i++) {
-	  if (gap[0] == gap[i]) {
-	    return (FALSE);
-	  }
+	// debug
+	
+	printf ("\nPrevious: ");
+	for (i = 0; previous[i] != -1; i++) {
+	  printf ("%ld ", previous[i]);
 	}
+
+	printf ("\nGaps: ");
+	for (i = 0; gaps[i] != -99; i++) {
+	  printf ("%ld ", gaps[i]);
+	}
+	
+
+
+	
+	// ----------- RULE: check for repeated schema use --------------- //
+	  i = 1;
+	  while (gaps[i] != -99) {   // ie gaps[] must contain at least two gaps       
+	    if (gaps[i] == gaps[0]) { // if proposed schema matches a previous schema
+	      // printf ("\nmonitoring: matches previous schema use in WM");
+	      return (FALSE);
+	    }	
+	    i ++;
+	  }
+	
     
 		/* ------------ END MONITORING RULES ----------------- */
 	    
 	
 
-	return(result);
+	return(TRUE);
     }
 
 }
@@ -644,15 +647,19 @@ static void apply_set_output(OosVars *gv)
 
 #ifdef SUPERVISORY_ON
 
-    if (!oos_match_above_threshold(gv, BOX_RESPONSE_BUFFER, previous, MATCH_THRESHOLD) && !oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
+
+    // if (!oos_match_above_threshold(gv, BOX_RESPONSE_BUFFER, previous, MATCH_THRESHOLD) && !oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
+
+    // what happens if we relax constraint that apply_set only fires when there is nothing in response buffer...?
+    if (!oos_match_above_threshold(gv, BOX_RESPONSE_NODES, template, MATCH_THRESHOLD)) {
 
 	/* If we have a previous response to use as a seed, then ...	      */
       if (oos_match(gv, BOX_WORKING_MEMORY, seed)) {
-  
-	
-	/* If there is also a current schema, then ...		      */
-	if (oos_match(gv, BOX_CURRENT_SET, current_set)) {
-	  /* Apply the current schema to the seed and excite the result */
+
+	    /* If there is also a current schema, then ...		      */
+	  if (oos_match(gv, BOX_CURRENT_SET, current_set)) {
+		/* Apply the current schema to the seed and excite the result */
+
 
 	      content = pl_clause_make_from_string("response(_).");
 	      pl_arg_set_to_int(content, 1, apply_schema(current_set, seed));
