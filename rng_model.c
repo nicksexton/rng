@@ -439,7 +439,7 @@ static Boolean check_random(OosVars *gv, long r)
 	*/
 
 	// ----------- RULE: check for +/-1 schema
-	/*
+	
 	if (gaps[0] == 1) {
 	  // printf ("monitoring: g1 == 1\n"); // debug
 	  return (FALSE);
@@ -449,7 +449,7 @@ static Boolean check_random(OosVars *gv, long r)
 	  // printf ("monitoring: g1 == -1\n"); // debug
 	  return (FALSE);
 	}
-	*/
+	
 
 	
 	// ----------- RULE: check for repeated schema use --------------- //
