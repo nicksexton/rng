@@ -621,7 +621,7 @@ static Boolean check_random(OosVars *gv, long r)
 	
 
 	}
-	/*
+	
 	printf ("working memory contents: ");
 	for (i = 0; i < 10; i++) {
 	  if (previous[i] == -1) {
@@ -631,7 +631,7 @@ static Boolean check_random(OosVars *gv, long r)
 	  
 	}
 	printf ("\n");
-	*/
+	
 
 
 	for (i=0; i < 10; i++) { 
