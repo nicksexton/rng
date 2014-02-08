@@ -19,7 +19,7 @@
 int main(int argc, char **argv)
 {
     OosVars *gv;
-    XGlobals xg = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE, TRUE, FALSE, CANVAS_SECOND_ORDER, CANVAS_VARY_THRESHOLD, {10.0, 1.0, 1.0, 40, 8}, -1, {}, {}, NULL};
+    XGlobals xg = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE, TRUE, FALSE, CANVAS_SECOND_ORDER, CANVAS_VARY_THRESHOLD, {10.0, 1.0, 1.0, 0.0, 8}, -1, {}, {}, NULL};
     
 
 
