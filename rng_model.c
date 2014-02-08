@@ -455,7 +455,7 @@ static Boolean check_random(OosVars *gv, long r)
 
 
 	// debug
-	
+	/*
 	printf ("\nPrevious: ");
 	for (i = 0; previous[i] != -1; i++) {
 	  printf ("%ld ", previous[i]);
@@ -465,7 +465,7 @@ static Boolean check_random(OosVars *gv, long r)
 	for (i = 0; gaps[i] != -99; i++) {
 	  printf ("%ld ", gaps[i]);
 	}
-	
+	*/
 
 
 	
