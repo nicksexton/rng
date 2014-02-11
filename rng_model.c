@@ -61,7 +61,8 @@ dual-task experiment.
 #define PERSISTENCE 0.905
 */
 
-/* trying to more evenly balance +1/-1 */
+/* 08/02/14 version */
+/*
 #define ACT_SELF 0.67		
 #define ACT_NEXT -0.0235
 #define ACT_PREV -0.0265
@@ -69,6 +70,17 @@ dual-task experiment.
 #define ACT_NEXT_WR -0.0265 // activation from next node when wrapping round
 #define ACT_PREV_WR -0.0275 // activation from prev node when wrapping round
 #define PERSISTENCE 0.905
+#define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
+#define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 14 // debug
+*/
+
+#define ACT_SELF 0.665		
+#define ACT_NEXT -0.0248
+#define ACT_PREV -0.0252
+#define ACT_INHI -0.047
+#define ACT_NEXT_WR -0.0257 // activation from next node when wrapping round
+#define ACT_PREV_WR -0.0262 // activation from prev node when wrapping round
+#define PERSISTENCE 0.904
 #define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
 #define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 14 // debug
 

@@ -1,3 +1,7 @@
+simulation_1.3_params
+
+- tweaking activation parameters so that activation in response nodes is a) doesn't have a bias for going forwards, and b) is more balanced with supervisory system such that they both get a say.
+
 
 simulation_1.3_randomlogic 
 
