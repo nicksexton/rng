@@ -65,13 +65,13 @@ dual-task experiment.
 */
 
 
-#define ACT_SELF 0.67		
-#define ACT_NEXT -0.0235
-#define ACT_PREV -0.0265
-#define ACT_INHI -0.049
-#define ACT_NEXT_WR -0.0265 // activation from next node when wrapping round
-#define ACT_PREV_WR -0.0275 // activation from prev node when wrapping round
-#define PERSISTENCE 0.905
+#define ACT_SELF 0.500		
+#define ACT_NEXT -0.0239
+#define ACT_PREV -0.0241
+#define ACT_INHI -0.033
+#define ACT_NEXT_WR -0.0247 // activation from next node when wrapping round
+#define ACT_PREV_WR -0.0252 // activation from prev node when wrapping round
+#define PERSISTENCE 0.93
 #define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
 #define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 14 // debug
 
@@ -86,7 +86,7 @@ dual-task experiment.
 /*  Schema selection strengths */
 // #define SCHEMA_BIAS
 
-#define SCHEMA_WEIGHT_VARIATION 0.5 // SD of gaussian noise for selection weights
+#define SCHEMA_WEIGHT_VARIATION 25.0 // SD of gaussian noise for selection weights
 
 #define SS_RP 0.01
 #define SS_FL 0.11      // flat selection strengths
@@ -467,6 +467,17 @@ static Boolean check_random(OosVars *gv, long r)
 	}
 	*/
 
+	// ----------- RULE: check for +/-1 schema
+
+	if (gaps[0] == 1) {
+	  // printf ("monitoring: g1 == 1\n"); // debug
+	  return (FALSE);
+	}
+
+	if (gaps[0] == -1) {
+	  // printf ("monitoring: g1 == -1\n"); // debug
+	  return (FALSE);
+	}
 
 	
 	// ----------- RULE: check for repeated schema use --------------- //
@@ -1021,14 +1032,23 @@ Boolean rng_create(OosVars *gv, RngParameters *pars)
 
 	    // now init my_schema_strengths for each subject
 
-	    for (k = 0; k < 10; k ++) {
-	      for (m = 0; m < 10; m ++) {
-		task_data->trial[i].my_schema_strengths[k][m] = 
-		  schema_strengths[k][m] * // base schema strengths (flat)
-		  (1 + gsl_ran_gaussian(gv->random_generator, 
-					SCHEMA_WEIGHT_VARIATION));
-	      }
-	    }
+ 	    double rand;
+ 	    // printf ("schema strengths:\n"); //debug
+  	    for (k = 0; k < 10; k ++) {
+  	      for (m = 0; m < 10; m ++) {
+ 		rand = gsl_ran_gaussian(gv->random_generator, SCHEMA_WEIGHT_VARIATION);
+ 		task_data->trial[i].my_schema_strengths[k][m] = ((1 + rand) > 0 ?
+ 								 (1 + rand) * schema_strengths[k][m] : 
+ 								 0 ); 
+ 		  
+ 		// printf ("%3.2f ", task_data->trial[i].my_schema_strengths[k][m]); //debug
+  	      }
+ 	      // printf ("\n"); // debug
+  	    }
+ 	    // printf ("\n"); //debug
+
+
+
 
 
 	}
