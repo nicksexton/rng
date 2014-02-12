@@ -12,7 +12,7 @@
 // #define STRENGTH_INHIBIT -8
 
 // new settings - trying to have excitation (at least, from apply set) exert a steadier influence
-#define STRENGTH_EXCITE 0.10
+#define STRENGTH_EXCITE 0.18
 #define STRENGTH_INHIBIT -8
 
 

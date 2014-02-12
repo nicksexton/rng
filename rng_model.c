@@ -74,13 +74,13 @@ dual-task experiment.
 #define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 14 // debug
 */
 
-#define ACT_SELF 0.665		
-#define ACT_NEXT -0.0248
-#define ACT_PREV -0.0252
-#define ACT_INHI -0.047
-#define ACT_NEXT_WR -0.0257 // activation from next node when wrapping round
-#define ACT_PREV_WR -0.0262 // activation from prev node when wrapping round
-#define PERSISTENCE 0.904
+#define ACT_SELF 0.500	  // .665	
+#define ACT_NEXT -0.0239  // -0.0248
+#define ACT_PREV -0.0241  // -0.0252
+#define ACT_INHI -0.033   // -0.047
+#define ACT_NEXT_WR -0.0247 // activation from next node when wrapping round
+#define ACT_PREV_WR -0.0252 // activation from prev node when wrapping round
+#define PERSISTENCE 0.93
 #define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
 #define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 14 // debug
 
