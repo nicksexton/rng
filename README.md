@@ -1,6 +1,13 @@
 rng
 ===
 
+simulation_2.3_params
+* included nice parameters from simulation_1.3_params
+* reinstated +/-1 explicit monitoring rule
+
+
+
+
 supervisory system - random number generation model
 
 simulation_1.3_randomlogic_1

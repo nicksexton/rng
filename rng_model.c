@@ -50,13 +50,13 @@ dual-task experiment.
 #define SET_SWITCH_LATENCY 6 // tried on 02/02/14 to get randomness check a bit better
 
 
-#define ACT_SELF 0.68		
-#define ACT_NEXT -0.025
-#define ACT_PREV -0.026
-#define ACT_INHI -0.048
-#define ACT_NEXT_WR -0.026 // activation from next node when wrapping round
-#define ACT_PREV_WR -0.031 // activation from prev node when wrapping round
-#define PERSISTENCE 0.905
+#define ACT_SELF 0.500		
+#define ACT_NEXT -0.0239
+#define ACT_PREV -0.0241
+#define ACT_INHI -0.033
+#define ACT_NEXT_WR -0.0247 // activation from next node when wrapping round
+#define ACT_PREV_WR -0.0252 // activation from prev node when wrapping round
+#define PERSISTENCE 0.93
 #define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
 
 	// #define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 8 // debug
@@ -621,7 +621,7 @@ static Boolean check_random(OosVars *gv, long r)
 	
 
 	}
-	
+	/*
 	printf ("working memory contents: ");
 	for (i = 0; i < 10; i++) {
 	  if (previous[i] == -1) {
@@ -631,7 +631,7 @@ static Boolean check_random(OosVars *gv, long r)
 	  
 	}
 	printf ("\n");
-	
+	*/
 
 
 	for (i=0; i < 10; i++) { 
@@ -648,7 +648,7 @@ static Boolean check_random(OosVars *gv, long r)
 	  }
 
 	      /* -------------- CHECK if response is step of 1  --------------- */
-	  /*
+	  
 	  if (gv->cycle - response_buffer_timestamp >= latency[0]) {
 	    if (gaps[0] == 1) {
 	      // printf ("monitoring: g1 == 1, after %4.2f cycles\n", p1_latency); // debug
@@ -661,7 +661,7 @@ static Boolean check_random(OosVars *gv, long r)
 	    }
 	  }
 
-	  */
+	  
 
 
                 /* ----------- CHECK if using associate already contained in WM -------------- */
