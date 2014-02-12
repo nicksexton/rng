@@ -63,14 +63,14 @@ dual-task experiment.
 #define PERSISTENCE 0.905
 */
 
-
-#define ACT_SELF 0.67		
-#define ACT_NEXT -0.0235
-#define ACT_PREV -0.0265
-#define ACT_INHI -0.049
-#define ACT_NEXT_WR -0.0265 // activation from next node when wrapping round
-#define ACT_PREV_WR -0.0275 // activation from prev node when wrapping round
-#define PERSISTENCE 0.905
+/* nice parameter settings, 12/02/14 */
+#define ACT_SELF 0.500		
+#define ACT_NEXT -0.0239
+#define ACT_PREV -0.0241
+#define ACT_INHI -0.033
+#define ACT_NEXT_WR -0.0247 // activation from next node when wrapping round
+#define ACT_PREV_WR -0.0252 // activation from prev node when wrapping round
+#define PERSISTENCE 0.93
 #define STARTING_RESPONSE_NODE_ACTIVATION_MAX 0.3
 #define SPREADING_ACTIVATION_ITERATIONS_PER_STEP 14 // debug
 
@@ -668,7 +668,7 @@ static Boolean check_random(OosVars *gv, long r)
 	  }
 
 	      /* -------------- CHECK if response is step of 1  --------------- */
-	  /*
+	  
 	  if (gv->cycle - response_buffer_timestamp >= latency[0]) {
 	    if (gaps[0] == 1) {
 	      // printf ("monitoring: g1 == 1, after %4.2f cycles\n", p1_latency); // debug
@@ -681,7 +681,7 @@ static Boolean check_random(OosVars *gv, long r)
 	    }
 	  }
 
-	  */
+	  
 
 
                 /* ----------- CHECK if using associate already contained in WM -------------- */
