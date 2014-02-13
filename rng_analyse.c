@@ -376,8 +376,18 @@ void rng_analyse_subject_responses(FILE *fp, OosVars *gv, int id)
 void rng_analyse_group_data(OosVars *gv, FILE *fp, RngScores *zscore_ref_means, RngScores *zscore_ref_sd)
 {
     RngData *task_data = (RngData *)gv->task_data;
+    RngScores rng_scores_zeroes; // for calculating standardisation of SD
     RngScores sum, ssq;
     int i, k;
+
+    rng_scores_zeroes.r = 0.0;
+    rng_scores_zeroes.rng = 0.0;
+    rng_scores_zeroes.tpi = 0.0;
+    rng_scores_zeroes.rg = 0.0;
+    rng_scores_zeroes.cs1 = 0; 
+    rng_scores_zeroes.cs2 = 0;
+    rng_scores_zeroes.cst = 0;
+    for (k=0; k < 19; k++) { rng_scores_zeroes.associates[k] = 0.0; }
 
     task_data->n = gv->block;
 
@@ -480,7 +490,7 @@ void rng_analyse_group_data(OosVars *gv, FILE *fp, RngScores *zscore_ref_means, 
  
       fprintf(fp, "SD(Z):\t");
       fprintf(fp, "%d\t", task_data->params.generation_period);// print rate 
-      rng_scores_convert(&(task_data->group_sd), zscore_ref_means, zscore_ref_sd, &z_score_sd);
+      rng_scores_convert(&(task_data->group_sd), &rng_scores_zeroes, zscore_ref_sd, &z_score_sd);
       fprint_rng_scores(fp, &z_score_sd);
       fprintf(fp, "\n");
 
