@@ -1253,7 +1253,7 @@ Boolean rng_create(OosVars *gv, RngParameters *pars)
 	    }
 
 	    // now init my_schema_strengths for each subject
-
+	    double rand;
 	    for (k = 0; k < 10; k ++) {
 	      for (m = 0; m < 10; m ++) {
 		rand = gsl_ran_gaussian(gv->random_generator, SCHEMA_WEIGHT_VARIATION);
