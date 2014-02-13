@@ -78,9 +78,4 @@ cat output_log.dat >> $TRIALSDATA
 ../rng -g 12 -u $UPDATING -d $DECAY -m $MONITORING -t $TEMPERATURE | awk 'NF' >> $SUMMARYDATA
 cat output_log.dat >> $TRIALSDATA
 
-
-
-
-
-
-
+grep 'Z' $SUMMARYDATA >> $ZSCORES
