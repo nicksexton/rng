@@ -20,6 +20,8 @@ void browser_draw_cairo(cairo_t *cr, OosVars *gv, int width, int height)
     char buffer[1024], cl_buffer[1024];
     int y = 1;
 
+    // counter for blank lines:
+    int total_lines = 4;
 
     cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
     cairo_rectangle(cr, 0, 0, width, height);
@@ -56,6 +58,14 @@ void browser_draw_cairo(cairo_t *cr, OosVars *gv, int width, int height)
 	}
 
         y++;
+	total_lines --;
+    }
+
+    /* insert blank lines here to prevent browser jumping*/
+    for ( ; total_lines > 0; total_lines --) {
+        cairox_text_parameters_set(&p, 20, y * LINE_SEP, PANGOX_XALIGN_LEFT, PANGOX_YALIGN_CENTER, 0.0);
+        cairox_paint_pango_text(cr, &p, layout, " ");
+	y ++;
     }
 
     cairox_paint_line(cr, 1.0, 10, y*LINE_SEP, width-10, y*LINE_SEP);
@@ -70,7 +80,7 @@ void browser_draw_cairo(cairo_t *cr, OosVars *gv, int width, int height)
                 g_snprintf(buffer, 1024, "%s: <EMPTY>", tmpb->name);
                 cairox_paint_pango_text(cr, &p, layout, buffer);
 		
-                y++;
+                y += 2;
             }
             else {
                 cairox_text_parameters_set(&p, 5, y * LINE_SEP, PANGOX_XALIGN_LEFT, PANGOX_YALIGN_CENTER, 0.0);
