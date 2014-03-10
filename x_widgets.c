@@ -2072,7 +2072,8 @@ Boolean rng_widgets_create(XGlobals *globals, OosVars *gv)
         g_signal_connect(G_OBJECT(globals->window), "delete_event", G_CALLBACK(event_delete), globals);
         g_signal_connect(G_OBJECT(globals->window), "destroy", G_CALLBACK(callback_destroy), globals);
 
-        page = gtk_vbox_new(FALSE, 0);
+        // page = gtk_vbox_new(FALSE, 0);
+	page = gtk_hbox_new(FALSE, 0); // changed to hbox so that it will display on laptop screen
         gtk_container_add(GTK_CONTAINER(globals->window), page);
         gtk_widget_show(page);
 
